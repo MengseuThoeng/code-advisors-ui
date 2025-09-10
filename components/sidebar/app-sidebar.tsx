@@ -34,11 +34,11 @@ interface NavItem {
 
 const mainNavigation: NavItem[] = [
   {
-    id: "home",
-    label: "Home",
-    href: "/home",
-    icon: Home,
-    description: "Your dashboard"
+    id: "articles",
+    label: "Articles",
+    href: "/",
+    icon: FileText,
+    description: "Browse all content"
   },
   {
     id: "trending",
@@ -46,13 +46,6 @@ const mainNavigation: NavItem[] = [
     href: "/content/trending", 
     icon: TrendingUp,
     description: "What's hot now"
-  },
-  {
-    id: "articles",
-    label: "Articles",
-    href: "/content",
-    icon: FileText,
-    description: "Browse articles"
   },
   {
     id: "discussions",
@@ -64,9 +57,9 @@ const mainNavigation: NavItem[] = [
   {
     id: "community",
     label: "Community",
-    href: "/community",
+    href: "/users",
     icon: Users,
-    description: "Connect with devs"
+    description: "Discover developers"
   },
 ];
 
@@ -87,10 +80,10 @@ const personalSpace: NavItem[] = [
   },
   {
     id: "tags",
-    label: "Topics",
+    label: "Tags",
     href: "/content/tags",
     icon: Tag,
-    description: "Browse topics"
+    description: "Browse tags"
   },
 ];
 

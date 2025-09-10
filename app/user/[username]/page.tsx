@@ -1,9 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { 
-  Edit, 
-  Settings, 
+  MessageSquare, 
   Share2, 
   MoreHorizontal, 
   MapPin, 
@@ -12,12 +11,14 @@ import {
   Link as LinkIcon,
   Trophy,
   BookOpen,
-  MessageSquare,
   Heart,
   Users,
   Star,
   Award,
-  TrendingUp
+  TrendingUp,
+  UserPlus,
+  UserCheck,
+  Flag
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,47 +26,182 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 
-export default function User() {
-  const [bgColor, setBgColor] = useState("#000040");
+export default function UserProfile() {
+  const params = useParams();
   const router = useRouter();
-
-  const handleEdit = () => {
-    router.push("/edituser");
-  };
+  const username = params.username as string;
+  
+  const [userData, setUserData] = useState<any>(null);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:8080/api/v1/edit_user_profiles/ZAZA")
-      .then((response) => response.json())
-      .then((data) => {
-        if (data && data.coverColor) {
-          setBgColor(data.coverColor);
-        }
-      })
-      .catch((error) => console.log("Error fetching cover color:", error));
-  }, []);
+    // Mock fetch user data by username - replace with real API
+    const fetchUserData = async () => {
+      setIsLoading(true);
+      try {
+        // Simulate API call
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Mock different user data based on username
+        const mockUsers = {
+          "sarahdev": {
+            id: "1",
+            name: "Sarah Chen",
+            username: "@sarahdev",
+            bio: "Senior Frontend Developer at TechCorp. Passionate about React, TypeScript, and creating beautiful user experiences. Always learning and sharing knowledge with the community.",
+            location: "New York, NY",
+            joined: "January 2022",
+            email: "sarah.chen@techcorp.com",
+            website: "sarahchen.dev",
+            followers: 2847,
+            following: 567,
+            posts: 89,
+            level: "Senior Developer",
+            score: 4250,
+            progress: 85,
+            coverColor: "#2563eb",
+            isVerified: true,
+            achievements: [
+              { id: 1, title: "React Expert", icon: "⚛️", earned: true },
+              { id: 2, title: "Community Leader", icon: "👑", earned: true },
+              { id: 3, title: "Open Source Hero", icon: "🌟", earned: true },
+              { id: 4, title: "Bug Hunter", icon: "🐛", earned: true },
+            ]
+          },
+          "mikejs": {
+            id: "2",
+            name: "Mike Johnson",
+            username: "@mikejs",
+            bio: "Full-stack developer specializing in Node.js and microservices. Love building scalable backend systems and mentoring junior developers.",
+            location: "San Francisco, CA",
+            joined: "March 2021",
+            email: "mike.johnson@example.com",
+            website: "mikejs.dev",
+            followers: 1234,
+            following: 892,
+            posts: 156,
+            level: "Expert Developer",
+            score: 3100,
+            progress: 70,
+            coverColor: "#059669",
+            isVerified: false,
+            achievements: [
+              { id: 1, title: "Node.js Master", icon: "🟢", earned: true },
+              { id: 2, title: "API Architect", icon: "🏗️", earned: true },
+              { id: 3, title: "Mentor", icon: "🎓", earned: false },
+              { id: 4, title: "Code Reviewer", icon: "👀", earned: true },
+            ]
+          },
+          "emilycode": {
+            id: "3",
+            name: "Emily Rodriguez",
+            username: "@emilycode",
+            bio: "Data Scientist and ML Engineer. Turning data into insights and building intelligent systems.",
+            location: "Austin, TX",
+            joined: "August 2021",
+            email: "emily.rodriguez@example.com",
+            website: "emilyrodriguez.dev",
+            followers: 1876,
+            following: 432,
+            posts: 67,
+            level: "Data Expert",
+            score: 3650,
+            progress: 80,
+            coverColor: "#7c3aed",
+            isVerified: true,
+            achievements: [
+              { id: 1, title: "Python Expert", icon: "🐍", earned: true },
+              { id: 2, title: "ML Pioneer", icon: "🤖", earned: true },
+              { id: 3, title: "Data Wizard", icon: "📊", earned: true },
+              { id: 4, title: "Research Leader", icon: "🔬", earned: false },
+            ]
+          }
+        };
 
-  // Mock user data - replace with real API calls
-  const userData = {
-    name: "John Doe",
-    username: "@johndoe",
-    bio: "Full-stack developer passionate about creating innovative solutions. Love working with React, Node.js, and exploring new technologies.",
-    location: "San Francisco, CA",
-    joined: "March 2023",
-    email: "john.doe@example.com",
-    website: "johndoe.dev",
-    followers: 1247,
-    following: 892,
-    posts: 156,
-    level: "Expert Developer",
-    score: 2850,
-    progress: 75,
-    achievements: [
-      { id: 1, title: "Code Master", icon: "🏆", earned: true },
-      { id: 2, title: "Community Helper", icon: "🤝", earned: true },
-      { id: 3, title: "Tutorial Creator", icon: "📚", earned: false },
-      { id: 4, title: "Bug Hunter", icon: "🐛", earned: true },
-    ]
+        // Remove @ symbol if present and convert to lowercase
+        const cleanUsername = username.replace('@', '').toLowerCase();
+        const user = mockUsers[cleanUsername as keyof typeof mockUsers] || {
+          id: "unknown",
+          name: "User Not Found",
+          username: `@${cleanUsername}`,
+          bio: "This user profile is not available.",
+          location: "Unknown",
+          joined: "Recently",
+          email: "",
+          website: "",
+          followers: 0,
+          following: 0,
+          posts: 0,
+          level: "New User",
+          score: 0,
+          progress: 0,
+          coverColor: "#6b7280",
+          isVerified: false,
+          achievements: []
+        };
+
+        setUserData(user);
+        // Mock following status
+        setIsFollowing(Math.random() > 0.5);
+      } catch (error) {
+        console.error("Error fetching user:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (username) {
+      fetchUserData();
+    }
+  }, [username]);
+
+  const handleFollow = () => {
+    setIsFollowing(!isFollowing);
+    // Here you would make an API call to follow/unfollow
   };
+
+  const handleMessage = () => {
+    // Navigate to message/chat with this user using username
+    router.push(`/messages/${username}`);
+  };
+
+  if (isLoading) {
+    return (
+      <main className="bg-gray-100 w-full min-h-screen">
+        <div className="ml-[320px] px-8 py-4 pt-16 flex justify-center">
+          <div className="max-w-7xl w-full">
+            <div className="animate-pulse">
+              <div className="h-64 bg-gray-300 rounded-lg mb-6"></div>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-1 space-y-4">
+                  <div className="h-48 bg-gray-300 rounded-lg"></div>
+                  <div className="h-32 bg-gray-300 rounded-lg"></div>
+                </div>
+                <div className="lg:col-span-2">
+                  <div className="h-96 bg-gray-300 rounded-lg"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  if (!userData) {
+    return (
+      <main className="bg-gray-100 w-full min-h-screen">
+        <div className="ml-[320px] px-8 py-4 pt-16 flex justify-center">
+          <div className="max-w-7xl w-full text-center py-20">
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">User Not Found</h1>
+            <p className="text-gray-600 mb-8">The user profile you're looking for doesn't exist.</p>
+            <Button onClick={() => router.back()}>Go Back</Button>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="bg-gray-100 w-full min-h-screen">
@@ -77,7 +213,7 @@ export default function User() {
             <div
               className="relative h-64 bg-gradient-to-br from-primary via-primary/90 to-primary/70"
               style={{ 
-                background: `linear-gradient(135deg, ${bgColor} 0%, ${bgColor}CC 50%, ${bgColor}99 100%)` 
+                background: `linear-gradient(135deg, ${userData.coverColor} 0%, ${userData.coverColor}CC 50%, ${userData.coverColor}99 100%)` 
               }}
             >
               {/* Decorative Elements */}
@@ -89,6 +225,9 @@ export default function User() {
               <div className="absolute top-6 right-6 flex space-x-3 z-10">
                 <Button size="sm" variant="secondary" className="bg-white/20 hover:bg-white/30 text-white border-white/20 backdrop-blur-sm">
                   <Share2 className="w-4 h-4" />
+                </Button>
+                <Button size="sm" variant="secondary" className="bg-white/20 hover:bg-white/30 text-white border-white/20 backdrop-blur-sm">
+                  <Flag className="w-4 h-4" />
                 </Button>
                 <Button size="sm" variant="secondary" className="bg-white/20 hover:bg-white/30 text-white border-white/20 backdrop-blur-sm">
                   <MoreHorizontal className="w-4 h-4" />
@@ -103,9 +242,14 @@ export default function User() {
                 <Avatar className="w-32 h-32 border-4 border-white shadow-xl">
                   <AvatarImage src="/user.jpg" alt={userData.name} />
                   <AvatarFallback className="text-2xl font-bold bg-primary text-white">
-                    {userData.name.split(' ').map(n => n[0]).join('')}
+                    {userData.name.split(' ').map((n: string) => n[0]).join('')}
                   </AvatarFallback>
                 </Avatar>
+                {userData.isVerified && (
+                  <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center border-2 border-white">
+                    <Star className="w-4 h-4 text-white fill-white" />
+                  </div>
+                )}
               </div>
 
               {/* Stats Row - Repositioned */}
@@ -127,25 +271,44 @@ export default function User() {
 
                 {/* Profile Actions */}
                 <div className="flex space-x-3">
-                  <Button onClick={handleEdit} className="bg-primary hover:bg-primary/90 text-white">
-                    <Edit className="w-4 h-4 mr-2 text-white"  />
-                    Edit Profile
+                  <Button 
+                    onClick={handleFollow}
+                    className={isFollowing 
+                      ? "bg-gray-200 hover:bg-gray-300 text-gray-800" 
+                      : "bg-primary hover:bg-primary/90 text-white"
+                    }
+                  >
+                    {isFollowing ? (
+                      <>
+                        <UserCheck className="w-4 h-4 mr-2" />
+                        Following
+                      </>
+                    ) : (
+                      <>
+                        <UserPlus className="w-4 h-4 mr-2" />
+                        Follow
+                      </>
+                    )}
                   </Button>
-                  <Button variant="outline">
-                    <Settings className="w-4 h-4 mr-2" />
-                    Settings
+                  <Button variant="outline" onClick={handleMessage}>
+                    <MessageSquare className="w-4 h-4 mr-2" />
+                    Message
                   </Button>
-                  <Badge className="flex items-center space-x-1 bg-green-100 text-green-800 px-3 py-1">
-                    <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                    <span className="text-sm">Your Profile</span>
-                  </Badge>
                 </div>
               </div>
 
               {/* Profile Details */}
               <div className="mt-8 space-y-4">
                 <div>
-                  <h1 className="text-3xl font-bold text-gray-900">{userData.name}</h1>
+                  <div className="flex items-center space-x-2">
+                    <h1 className="text-3xl font-bold text-gray-900">{userData.name}</h1>
+                    {userData.isVerified && (
+                      <Badge className="bg-blue-500 text-white">
+                        <Star className="w-3 h-3 mr-1" />
+                        Verified
+                      </Badge>
+                    )}
+                  </div>
                   <p className="text-lg text-gray-600">{userData.username}</p>
                 </div>
                 
@@ -160,14 +323,12 @@ export default function User() {
                     <Calendar className="w-4 h-4" />
                     <span>Joined {userData.joined}</span>
                   </div>
-                  <div className="flex items-center space-x-1">
-                    <Mail className="w-4 h-4" />
-                    <span>{userData.email}</span>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <LinkIcon className="w-4 h-4" />
-                    <span className="text-primary hover:underline cursor-pointer">{userData.website}</span>
-                  </div>
+                  {userData.website && (
+                    <div className="flex items-center space-x-1">
+                      <LinkIcon className="w-4 h-4" />
+                      <span className="text-primary hover:underline cursor-pointer">{userData.website}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </CardContent>
@@ -177,7 +338,7 @@ export default function User() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Sidebar - Profile Info */}
             <div className="lg:col-span-1 space-y-6">
-              {/* Achievement Level Card */}
+              {/* Developer Level Card */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
@@ -195,7 +356,7 @@ export default function User() {
                     </div>
                     <Progress value={userData.progress} className="h-2" />
                     <p className="text-xs text-gray-600 mt-1">
-                      {Math.round((100 - userData.progress) * 50)} XP to next level
+                      Level {Math.floor(userData.progress / 20) + 1} Developer
                     </p>
                   </div>
                 </CardContent>
@@ -211,7 +372,7 @@ export default function User() {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 gap-3">
-                    {userData.achievements.map((achievement) => (
+                    {userData.achievements.map((achievement: any) => (
                       <div
                         key={achievement.id}
                         className={`p-3 rounded-lg border text-center transition-colors ${
@@ -244,28 +405,28 @@ export default function User() {
                       <BookOpen className="w-4 h-4 text-blue-500" />
                       <span className="text-sm">Articles Written</span>
                     </div>
-                    <span className="font-semibold">24</span>
+                    <span className="font-semibold">{Math.floor(userData.posts * 0.3)}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <MessageSquare className="w-4 h-4 text-green-500" />
                       <span className="text-sm">Comments</span>
                     </div>
-                    <span className="font-semibold">167</span>
+                    <span className="font-semibold">{Math.floor(userData.posts * 2.1)}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <Heart className="w-4 h-4 text-red-500" />
                       <span className="text-sm">Likes Received</span>
                     </div>
-                    <span className="font-semibold">892</span>
+                    <span className="font-semibold">{Math.floor(userData.followers * 0.4)}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <Users className="w-4 h-4 text-purple-500" />
                       <span className="text-sm">Helped Users</span>
                     </div>
-                    <span className="font-semibold">45</span>
+                    <span className="font-semibold">{Math.floor(userData.score / 50)}</span>
                   </div>
                 </CardContent>
               </Card>
@@ -277,7 +438,7 @@ export default function User() {
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
                     <BookOpen className="w-5 h-5 text-primary" />
-                    <span>Recent Posts & Activities</span>
+                    <span>{userData.name}'s Posts & Activities</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -285,7 +446,7 @@ export default function User() {
                     {/* Recent Posts will be loaded here */}
                     <div className="text-center py-8 text-gray-500">
                       <BookOpen className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                      <p>User posts and activities will appear here</p>
+                      <p>{userData.name}'s posts and activities will appear here</p>
                       <p className="text-sm">Connect with the API to load real content</p>
                     </div>
                   </div>
