@@ -223,107 +223,131 @@ export default function UsersDirectory() {
   };
 
   const UserCard = ({ user }: { user: any }) => (
-    <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-      <CardContent className="p-6">
-        <div className="flex items-start space-x-4">
+    <Card className="group hover:shadow-xl transition-all duration-300 border-0 shadow-md hover:-translate-y-1 bg-white overflow-hidden">
+      {/* Cover Header */}
+      <div 
+        className="h-24 bg-gradient-to-r relative"
+        style={{ 
+          background: `linear-gradient(135deg, ${user.coverColor}, ${user.coverColor}AA)`
+        }}
+      >
+        <div className="absolute inset-0 bg-black/10"></div>
+        {user.isVerified && (
+          <div className="absolute top-3 right-3">
+            <Badge className="bg-white/20 border-white/30 text-white backdrop-blur-sm">
+              <Star className="w-3 h-3 mr-1 fill-current" />
+              Verified
+            </Badge>
+          </div>
+        )}
+      </div>
+
+      <CardContent className="p-6 -mt-8 relative">
+        <div className="flex items-start justify-between mb-4">
           {/* Avatar */}
-          <div className="relative">
-            <Avatar className="w-16 h-16">
+          <div className="relative z-10">
+            <Avatar className="w-16 h-16 border-4 border-white shadow-lg">
               <AvatarImage src="/user.jpg" alt={user.name} />
-              <AvatarFallback className="text-lg font-bold" style={{ backgroundColor: user.coverColor, color: 'white' }}>
+              <AvatarFallback 
+                className="text-lg font-bold text-white text-shadow"
+                style={{ backgroundColor: user.coverColor }}
+              >
                 {user.name.split(' ').map((n: string) => n[0]).join('')}
               </AvatarFallback>
             </Avatar>
-            {user.isVerified && (
-              <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center border-2 border-white">
-                <Star className="w-3 h-3 text-white fill-white" />
-              </div>
-            )}
+            <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-white"></div>
           </div>
 
-          {/* User Info */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <Link href={`/user/${user.username}`}>
-                  <div className="flex items-center space-x-2 mb-1">
-                    <h3 className="font-semibold text-gray-900 hover:text-primary transition-colors">
-                      {user.name}
-                    </h3>
-                    {user.isVerified && (
-                      <Badge className="bg-blue-500 text-white text-xs">
-                        Verified
-                      </Badge>
-                    )}
-                  </div>
-                </Link>
-                <p className="text-sm text-gray-600 mb-1">{user.displayUsername}</p>
-                <p className="text-sm text-gray-700 mb-3 line-clamp-2">{user.bio}</p>
-                
-                {/* Skills */}
-                <div className="flex flex-wrap gap-1 mb-3">
-                  {user.skills.slice(0, 3).map((skill: string) => (
-                    <Badge key={skill} variant="secondary" className="text-xs">
-                      {skill}
-                    </Badge>
-                  ))}
-                  {user.skills.length > 3 && (
-                    <Badge variant="secondary" className="text-xs">
-                      +{user.skills.length - 3}
-                    </Badge>
-                  )}
-                </div>
+          {/* Follow Button */}
+          <Button
+            size="sm"
+            onClick={(e) => {
+              e.preventDefault();
+              handleFollow(user.id);
+            }}
+            className={`transition-all duration-200 ${
+              followingStatus[user.id] 
+                ? "bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-300" 
+                : "bg-gradient-to-r from-[#000040] to-[#CD3937] hover:from-[#000040]/90 hover:to-[#CD3937]/90 text-white shadow-lg"
+            }`}
+          >
+            {followingStatus[user.id] ? (
+              <>
+                <UserCheck className="w-4 h-4 mr-1" />
+                Following
+              </>
+            ) : (
+              <>
+                <UserPlus className="w-4 h-4 mr-1" />
+                Follow
+              </>
+            )}
+          </Button>
+        </div>
 
-                {/* Stats */}
-                <div className="flex items-center space-x-4 text-xs text-gray-500 mb-3">
-                  <div className="flex items-center space-x-1">
-                    <Users className="w-3 h-3" />
-                    <span>{user.followers} followers</span>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <Eye className="w-3 h-3" />
-                    <span>{user.posts} posts</span>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <MapPin className="w-3 h-3" />
-                    <span>{user.location}</span>
-                  </div>
-                </div>
+        {/* User Info */}
+        <Link href={`/user/${user.username}`} className="block">
+          <div className="space-y-3">
+            {/* Name and Username */}
+            <div>
+              <h3 className="font-bold text-lg text-gray-900 group-hover:text-[#CD3937] transition-colors">
+                {user.name}
+              </h3>
+              <p className="text-sm text-gray-500 font-medium">{user.displayUsername}</p>
+            </div>
 
-                {/* Level Badge */}
-                <Badge variant="secondary" className="bg-primary/10 text-primary text-xs">
-                  <Award className="w-3 h-3 mr-1" />
-                  {user.level}
+            {/* Bio */}
+            <p className="text-sm text-gray-600 leading-relaxed line-clamp-2 min-h-[2.5rem]">
+              {user.bio}
+            </p>
+
+            {/* Skills */}
+            <div className="flex flex-wrap gap-1.5">
+              {user.skills.slice(0, 3).map((skill: string) => (
+                <Badge 
+                  key={skill} 
+                  variant="secondary" 
+                  className="text-xs bg-gray-100 text-gray-700 hover:bg-[#000040] hover:text-white transition-colors"
+                >
+                  {skill}
                 </Badge>
-              </div>
+              ))}
+              {user.skills.length > 3 && (
+                <Badge variant="secondary" className="text-xs bg-[#CD3937]/10 text-[#CD3937]">
+                  +{user.skills.length - 3} more
+                </Badge>
+              )}
+            </div>
 
-              {/* Follow Button */}
-              <Button
-                size="sm"
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleFollow(user.id);
-                }}
-                className={followingStatus[user.id] 
-                  ? "bg-gray-200 hover:bg-gray-300 text-gray-800" 
-                  : "bg-primary hover:bg-primary/90 text-white"
-                }
-              >
-                {followingStatus[user.id] ? (
-                  <>
-                    <UserCheck className="w-3 h-3 mr-1" />
-                    Following
-                  </>
-                ) : (
-                  <>
-                    <UserPlus className="w-3 h-3 mr-1" />
-                    Follow
-                  </>
-                )}
-              </Button>
+            {/* Stats Grid */}
+            <div className="grid grid-cols-3 gap-4 pt-3 border-t border-gray-100">
+              <div className="text-center">
+                <div className="font-bold text-sm text-gray-900">{user.followers}</div>
+                <div className="text-xs text-gray-500">Followers</div>
+              </div>
+              <div className="text-center">
+                <div className="font-bold text-sm text-gray-900">{user.posts}</div>
+                <div className="text-xs text-gray-500">Posts</div>
+              </div>
+              <div className="text-center">
+                <div className="font-bold text-sm text-gray-900">{user.score}</div>
+                <div className="text-xs text-gray-500">Score</div>
+              </div>
+            </div>
+
+            {/* Location and Level */}
+            <div className="flex items-center justify-between pt-2">
+              <div className="flex items-center text-xs text-gray-500">
+                <MapPin className="w-3 h-3 mr-1" />
+                <span>{user.location}</span>
+              </div>
+              <Badge className="bg-gradient-to-r from-[#000040] to-[#CD3937] text-white text-xs">
+                <Award className="w-3 h-3 mr-1" />
+                {user.level}
+              </Badge>
             </div>
           </div>
-        </div>
+        </Link>
       </CardContent>
     </Card>
   );
