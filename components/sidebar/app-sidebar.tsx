@@ -81,9 +81,9 @@ const personalSpace: NavItem[] = [
   {
     id: "tags",
     label: "Tags",
-    href: "/content/tags",
+    href: "/tags",
     icon: Tag,
-    description: "Browse tags"
+    description: "Browse all tags"
   },
 ];
 

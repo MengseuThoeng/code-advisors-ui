@@ -185,14 +185,11 @@ export default function ContentDetail() {
         {/* Cover Image Overlay */}
         {content.coverImage && (
           <>
-            <img
+            <ImageWithFallback
               src={content.coverImage}
               alt={content.title}
               className="absolute inset-0 w-full h-full object-cover z-0"
-              onError={(e) => {
-                console.log("Image failed to load:", content.coverImage);
-                e.currentTarget.style.display = 'none';
-              }}
+              fallbackClassName="absolute inset-0 w-full h-full z-0 bg-gradient-to-br from-gray-800 via-gray-700 to-gray-900"
             />
             <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/40 to-black/70 z-10" />
           </>
