@@ -32,7 +32,7 @@ import pgsql from "highlight.js/lib/languages/pgsql"
 import 'highlight.js/styles/github.css';
 
 
-export default function RichTextEditor({ content, onChange }) {
+export default function RichTextEditor({ content, onChange }: { content: any; onChange: any }) {
   const [htmlContent, setHtmlContent] = useState(content);
   const [showPreview, setShowPreview] = useState(false);
 

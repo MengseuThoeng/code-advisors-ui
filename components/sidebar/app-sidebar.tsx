@@ -94,7 +94,11 @@ export function AppSidebar() {
   const hiddenPaths = [
     "/content/new",
     "/edituser",
-    "/about"
+    "/about",
+    "/auth/login",
+    "/auth/register", 
+    "/auth/otp",
+    "/auth/forgot-password"
   ];
 
   if (hiddenPaths.includes(pathname) || 

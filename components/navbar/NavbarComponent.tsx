@@ -41,15 +41,19 @@ export default function NavbarComponent() {
 
             {/* Action Buttons */}
             <div className="flex items-center space-x-3">
-                <Button 
-                    variant="outline" 
-                    className="h-[44px] px-6 border-2 border-primary/20 text-primary hover:bg-primary/5 hover:border-primary/40 font-semibold rounded-xl transition-all duration-200"
-                >
-                    Sign In
-                </Button>
-                <Button className="h-[44px] px-6 bg-primary hover:bg-primary/90 text-white font-semibold rounded-xl shadow-lg shadow-primary/25 transition-all duration-200 hover:shadow-xl hover:shadow-primary/30">
-                    Get Started
-                </Button>
+                <Link href="/auth/login">
+                    <Button 
+                        variant="outline" 
+                        className="h-[44px] px-6 border-2 border-primary/20 text-primary hover:bg-primary/5 hover:border-primary/40 font-semibold rounded-xl transition-all duration-200"
+                    >
+                        Sign In
+                    </Button>
+                </Link>
+                <Link href="/auth/register">
+                    <Button className="h-[44px] px-6 bg-primary hover:bg-primary/90 text-white font-semibold rounded-xl shadow-lg shadow-primary/25 transition-all duration-200 hover:shadow-xl hover:shadow-primary/30">
+                        Get Started
+                    </Button>
+                </Link>
             </div>
         </div>
     );

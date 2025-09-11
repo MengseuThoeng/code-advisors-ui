@@ -382,9 +382,8 @@ export default function CreateNewContent() {
                               <FormItem>
                                 <FormControl>
                                   <RichTextEditor
-                                    value={field.value}
+                                    content={field.value}
                                     onChange={field.onChange}
-                                    placeholder="Start writing your amazing article..."
                                   />
                                 </FormControl>
                                 <FormMessage />
@@ -513,8 +512,8 @@ export default function CreateNewContent() {
                                     components={animatedComponents}
                                     options={tags}
                                     value={tags.filter(tag => field.value.includes(tag.value))}
-                                    onChange={(selectedOptions) => {
-                                      field.onChange(selectedOptions.map(option => option.value));
+                                    onChange={(selectedOptions: any) => {
+                                      field.onChange(selectedOptions.map((option: any) => option.value));
                                     }}
                                     placeholder="Select up to 5 tags..."
                                     styles={customSelectStyles}

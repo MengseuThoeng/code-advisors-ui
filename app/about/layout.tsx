@@ -1,6 +1,5 @@
 import { roboto, koh_Santepheap } from "@/app/fonts/fonts";
 import NavbarLogin from "@/components/navbar/NavbarLogin";
-import Footer from "@/components/footer/Footer";
 import { ErrorBoundary } from "next/dist/client/components/error-boundary";
 import Error from "@/app/error";
 

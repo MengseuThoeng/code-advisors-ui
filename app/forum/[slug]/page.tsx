@@ -4,11 +4,12 @@ import ForumDetailComponent from "@/components/forum-component/forumDetailCompon
 import React from "react";
 
 // If you're fetching data, make this async
-export default function ForumDetailPage({
+export default async function ForumDetailPage({
     params,
 }: {
-    params: { id: string };
+    params: Promise<{ slug: string }>;
 }) {
+    const { slug } = await params;
     // You can get the forum data using the ID from params
     // For example:
     // const forumData = await getForumById(params.id);

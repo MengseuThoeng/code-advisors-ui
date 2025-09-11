@@ -8,7 +8,7 @@ import TeamSection from "@/components/card-component/card/MemberComponent";
 import AnimatedBackground from '@/components/card-component/card/AnimatedBackground'
 
 
-export default function about() {
+export default function About() {
   React.useEffect(() => {
     AOS.init({
       duration: 1000,
