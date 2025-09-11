@@ -13,17 +13,18 @@ export default function ConditionalLayout({
   const pathname = usePathname();
 
   // Pages where navbar and sidebar should be hidden
-  const authPaths = [
+  const hiddenNavPaths = [
     "/auth/login",
     "/auth/register", 
     "/auth/otp",
-    "/auth/forgot-password"
+    "/auth/forgot-password",
+    "/loading-test"
   ];
 
-  const isAuthPage = authPaths.some(path => pathname.startsWith(path));
+  const shouldHideNavigation = hiddenNavPaths.some(path => pathname.startsWith(path));
 
-  if (isAuthPage) {
-    // Auth pages: no navbar, no sidebar, full screen
+  if (shouldHideNavigation) {
+    // Auth pages and 404 page: no navbar, no sidebar, full screen
     return (
       <main className="w-full min-h-screen">
         {children}

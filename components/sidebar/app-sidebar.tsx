@@ -36,7 +36,7 @@ const mainNavigation: NavItem[] = [
   {
     id: "articles",
     label: "Articles",
-    href: "/",
+    href: "/home",
     icon: FileText,
     description: "Browse all content"
   },
@@ -84,6 +84,23 @@ const personalSpace: NavItem[] = [
     href: "/content/tags",
     icon: Tag,
     description: "Browse tags"
+  },
+];
+
+const developerTools: NavItem[] = [
+  {
+    id: "loading-demo",
+    label: "Loading Demo",
+    href: "/loading-demo",
+    icon: Code,
+    description: "Random loading system"
+  },
+  {
+    id: "loading-test",
+    label: "Loading Lab",
+    href: "/loading-test",
+    icon: Search,
+    description: "Test all loadings"
   },
 ];
 
@@ -178,6 +195,16 @@ export function AppSidebar() {
           </h3>
           <SidebarMenu className="space-y-2">
             {personalSpace.map(renderNavItem)}
+          </SidebarMenu>
+        </div>
+
+        {/* Developer Tools */}
+        <div>
+          <h3 className="text-xs font-bold text-primary/70 uppercase tracking-wider mb-6 px-2">
+            Developer
+          </h3>
+          <SidebarMenu className="space-y-2">
+            {developerTools.map(renderNavItem)}
           </SidebarMenu>
         </div>
       </SidebarContent>

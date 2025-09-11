@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import RandomLoadingSystem from "@/components/RandomLoadingSystem";
 import {
   Tabs,
   TabsContent,
@@ -49,7 +50,13 @@ export default function UserPost() {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="mt-[95px] flex justify-center">
+        <div className="w-full max-w-md">
+          <RandomLoadingSystem size="md" />
+        </div>
+      </div>
+    );
   }
 
   if (error) {

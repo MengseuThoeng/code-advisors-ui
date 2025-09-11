@@ -1,6 +1,7 @@
 "use client";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import RandomLoadingSystem from '@/components/RandomLoadingSystem';
 
 export default function NewRedirect() {
   const router = useRouter();
@@ -11,9 +12,8 @@ export default function NewRedirect() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#CD3937] mx-auto mb-4"></div>
-        <p className="text-gray-600">Redirecting to content creation...</p>
+      <div className="w-full max-w-md">
+        <RandomLoadingSystem size="lg" />
       </div>
     </div>
   );
