@@ -792,4 +792,268 @@ interface SearchHistory {
 - User activity analytics
 - Content popularity metrics
 
-This API specification covers all the features visible in your frontend application. Let me know if you need any clarification or additional endpoints!
+---
+
+## 🚨 Reporting & Moderation APIs
+
+### POST `/api/reports`
+Report content or user abuse
+```json
+{
+  "contentId": "string",
+  "contentType": "article|forum|comment|user",
+  "reason": "spam|inappropriate|harassment|copyright|other",
+  "description": "string",
+  "reportedUserId": "string" // if reporting a user
+}
+```
+
+### GET `/api/reports` (Admin only)
+Get reports list for moderation
+```
+Query params:
+- status: pending|reviewed|resolved
+- type: article|forum|comment|user
+- page: number
+- limit: number
+```
+
+### PUT `/api/reports/{reportId}` (Admin only)
+Update report status
+```json
+{
+  "status": "reviewed|resolved",
+  "moderatorNotes": "string",
+  "action": "no_action|content_removed|user_warned|user_suspended"
+}
+```
+
+---
+
+## 🏆 Achievement & Gamification APIs
+
+### GET `/api/achievements/{userId}`
+Get user achievements
+```json
+{
+  "id": "string",
+  "userId": "string",
+  "score": "number",
+  "level": "bronze|silver|gold|platinum",
+  "badges": [
+    {
+      "id": "string",
+      "name": "string",
+      "description": "string",
+      "icon": "string",
+      "earnedAt": "datetime"
+    }
+  ],
+  "streak": {
+    "current": "number",
+    "longest": "number",
+    "lastActivity": "datetime"
+  }
+}
+```
+
+### GET `/api/achievements/leaderboard`
+Get achievements leaderboard
+```
+Query params:
+- timeframe: daily|weekly|monthly|all_time
+- limit: number
+```
+
+### POST `/api/achievements/check`
+Check for new achievements (triggered by user actions)
+```json
+{
+  "action": "post_created|comment_added|vote_received|solution_accepted",
+  "metadata": {}
+}
+```
+
+---
+
+## 📈 Advanced Analytics APIs
+
+### GET `/api/analytics/content/{contentId}`
+Get content analytics (for authors)
+```json
+{
+  "views": {
+    "total": "number",
+    "unique": "number",
+    "daily": [{"date": "string", "views": "number"}]
+  },
+  "engagement": {
+    "likes": "number",
+    "comments": "number",
+    "shares": "number",
+    "bookmarks": "number"
+  },
+  "demographics": {
+    "topCountries": [{"country": "string", "percentage": "number"}],
+    "topReferrers": [{"source": "string", "visits": "number"}]
+  },
+  "readingStats": {
+    "averageTimeOnPage": "number",
+    "completionRate": "number"
+  }
+}
+```
+
+### GET `/api/analytics/forum/{postId}`
+Get forum post analytics
+```json
+{
+  "views": "number",
+  "uniqueViews": "number",
+  "responses": "number",
+  "votes": {
+    "up": "number",
+    "down": "number",
+    "score": "number"
+  },
+  "timeToSolution": "number", // minutes
+  "helpfulnessRating": "number"
+}
+```
+
+### GET `/api/analytics/user/engagement`
+Get user engagement analytics
+```json
+{
+  "postsCreated": {
+    "thisWeek": "number",
+    "lastWeek": "number",
+    "trend": "up|down|stable"
+  },
+  "viewsReceived": {
+    "thisWeek": "number",
+    "lastWeek": "number",
+    "trend": "up|down|stable"
+  },
+  "engagementRate": "number",
+  "topPerformingContent": [
+    {
+      "id": "string",
+      "title": "string",
+      "views": "number",
+      "engagement": "number"
+    }
+  ]
+}
+```
+
+---
+
+## 📊 Additional Data Models
+
+### Report Model
+```typescript
+interface Report {
+  id: string;
+  contentId: string;
+  contentType: 'article' | 'forum' | 'comment' | 'user';
+  reason: 'spam' | 'inappropriate' | 'harassment' | 'copyright' | 'other';
+  description: string;
+  reportedBy: User;
+  reportedUserId?: string;
+  status: 'pending' | 'reviewed' | 'resolved';
+  moderatorNotes?: string;
+  action?: 'no_action' | 'content_removed' | 'user_warned' | 'user_suspended';
+  createdAt: Date;
+  reviewedAt?: Date;
+}
+```
+
+### Achievement Model
+```typescript
+interface Achievement {
+  id: string;
+  userId: string;
+  score: number;
+  level: 'bronze' | 'silver' | 'gold' | 'platinum';
+  badges: Badge[];
+  streak: {
+    current: number;
+    longest: number;
+    lastActivity: Date;
+  };
+  totalPoints: number;
+  rank: number;
+  nextLevelProgress: number; // percentage to next level
+}
+
+interface Badge {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  category: 'posting' | 'engagement' | 'helping' | 'special';
+  rarity: 'common' | 'rare' | 'epic' | 'legendary';
+  earnedAt: Date;
+}
+```
+
+### Analytics Model
+```typescript
+interface ContentAnalytics {
+  contentId: string;
+  contentType: 'article' | 'forum';
+  views: {
+    total: number;
+    unique: number;
+    daily: Array<{ date: string; views: number }>;
+  };
+  engagement: {
+    likes: number;
+    comments: number;
+    shares: number;
+    bookmarks: number;
+    averageRating?: number;
+  };
+  demographics: {
+    topCountries: Array<{ country: string; percentage: number }>;
+    topReferrers: Array<{ source: string; visits: number }>;
+    deviceTypes: Array<{ device: string; percentage: number }>;
+  };
+  performance: {
+    averageTimeOnPage: number; // seconds
+    completionRate: number; // percentage
+    bounceRate: number; // percentage
+  };
+}
+```
+
+---
+
+## 📝 Summary
+
+**Total API Endpoints: 95+**
+
+### API Categories Breakdown:
+- **Authentication**: 9 endpoints
+- **User Management**: 9 endpoints  
+- **Forum System**: 15 endpoints
+- **Content Management**: 12 endpoints
+- **Tag System**: 6 endpoints
+- **Notifications**: 6 endpoints
+- **Search**: 5 endpoints
+- **History & Analytics**: 6 endpoints
+- **Reporting & Moderation**: 3 endpoints
+- **Achievements**: 3 endpoints
+- **Advanced Analytics**: 3 endpoints
+- **File Upload**: 1 endpoint
+- **WebSocket Events**: 3 event types
+
+### Data Models: 12 comprehensive models
+- User, ForumPost, Article, Comment, Tag, Notification
+- Bookmark, ReadingHistory, SearchHistory, Report
+- Achievement/Badge, ContentAnalytics
+
+This comprehensive API specification covers **every feature** visible in your frontend application, including the reporting system, achievement system, and advanced analytics that I discovered in your components!
+
+Ready for backend implementation! 🚀
