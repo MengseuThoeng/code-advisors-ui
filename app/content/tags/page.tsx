@@ -162,7 +162,7 @@ const ContentTagsPage: React.FC = () => {
             <CardContent>
               <div className="flex flex-wrap gap-3">
                 {trendingTags.map((tag) => (
-                  <Link key={tag.name} href={`/content/tags/${tag.name}`}>
+                  <Link key={tag.name} href={`/tags/${tag.name}`}>
                     <Badge 
                       variant="secondary" 
                       className="px-4 py-2 bg-[#CD3937] text-white hover:bg-[#CD3937]/90 cursor-pointer transition-colors"
@@ -220,7 +220,7 @@ const ContentTagsPage: React.FC = () => {
           {/* Tags Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredTags.map((tag) => (
-              <Link key={tag.name} href={`/content/tags/${tag.name}`}>
+              <Link key={tag.name} href={`/tags/${tag.name}`}>
                 <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer group">
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between mb-3">

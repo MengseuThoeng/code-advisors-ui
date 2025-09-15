@@ -24,13 +24,23 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
+import EditUserModal from "@/components/userprofile/EditUserModal";
 
 export default function User() {
   const [bgColor, setBgColor] = useState("#000040");
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const router = useRouter();
 
   const handleEdit = () => {
-    router.push("/edituser");
+    setIsEditModalOpen(true);
+  };
+
+  const handleSaveProfile = (data: any) => {
+    console.log("Saving profile data:", data);
+    // Handle API call to save data
+    if (data.bgColor) {
+      setBgColor(data.bgColor);
+    }
   };
 
   useEffect(() => {
@@ -295,6 +305,21 @@ export default function User() {
           </div>
         </div>
       </div>
+
+      {/* Edit User Modal */}
+      <EditUserModal 
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        userData={{
+          name: userData.name,
+          username: userData.username,
+          bio: userData.bio,
+          location: userData.location,
+          email: userData.email,
+          website: userData.website,
+        }}
+        onSave={handleSaveProfile}
+      />
     </main>
   );
 }

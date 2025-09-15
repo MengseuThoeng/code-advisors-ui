@@ -1,6 +1,5 @@
 import React from "react";
 import { ForumCardComponent } from "./ForumCardComponent";
-import TagComponent from "@/components/tag/tagComponent";
 
 // Mock Data
 const cardsData = [
@@ -125,7 +124,6 @@ const cardsData = [
 export default function ForumCardList() {
     return (
         <div className="w-full max-w-4xl mx-auto">
-            <TagComponent />
             <div className="grid grid-cols-1 gap-6">
                 {cardsData.map((card) => (
                     <ForumCardComponent key={card.id} {...card} />

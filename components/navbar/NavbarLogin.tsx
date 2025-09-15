@@ -78,10 +78,10 @@ export function NavbarLogin() {
           }
         >
           <DropdownItem className="text-gray-700 hover:text-primary hover:bg-primary/5 font-medium">
-            Write Article
+            <a href="/content/new" className="w-full block">Write Article</a>
           </DropdownItem>
           <DropdownItem className="text-gray-700 hover:text-primary hover:bg-primary/5 font-medium">
-            Start Discussion
+            <a href="/forum/new" className="w-full block">Ask Question</a>
           </DropdownItem>
         </Dropdown>
 

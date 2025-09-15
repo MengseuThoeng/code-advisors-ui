@@ -65,24 +65,24 @@ export function ForumCardComponent({
     ];
 
     return (
-        <div className="bg-white rounded-2xl shadow-lg shadow-gray-200/50 p-6 border border-gray-100 hover:shadow-xl hover:shadow-gray-300/50 transition-all duration-300 group">
+        <div className="bg-white rounded-2xl shadow-lg shadow-gray-200/50 p-8 border border-gray-100 hover:shadow-xl hover:shadow-gray-300/50 transition-all duration-300 group">
             {/* Header Section */}
-            <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center space-x-4">
                     <div className="relative">
                         <Image
                             src={avatar}
                             alt={username}
-                            width={44}
-                            height={44}
+                            width={56}
+                            height={56}
                             className="rounded-full object-cover ring-2 ring-primary/10"
                         />
-                        <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-white"></div>
+                        <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-white"></div>
                     </div>
                     <div>
-                        <h3 className="font-semibold text-primary">{username}</h3>
+                        <h3 className="font-semibold text-primary text-lg">{username}</h3>
                         <div className="flex items-center space-x-1 text-sm text-gray-500">
-                            <Clock className="w-3 h-3" />
+                            <Clock className="w-4 h-4" />
                             <span>{timestamp}</span>
                         </div>
                     </div>
@@ -111,22 +111,22 @@ export function ForumCardComponent({
             </div>
 
             {/* Content Section */}
-            <div className="mb-5">
+            <div className="mb-6">
                 <Link href={`/forum/${id}`}>
-                    <h2 className="text-xl font-bold text-primary hover:text-primary/80 transition-colors mb-3 line-clamp-2 group-hover:underline decoration-primary/30">
+                    <h2 className="text-2xl font-bold text-primary hover:text-primary/80 transition-colors mb-4 line-clamp-2 group-hover:underline decoration-primary/30">
                         {title}
                     </h2>
                 </Link>
-                <p className="text-gray-600 leading-relaxed line-clamp-3">{content}</p>
+                <p className="text-gray-600 leading-relaxed line-clamp-3 text-base">{content}</p>
             </div>
 
             {/* Tags Section */}
-            <div className="flex flex-wrap gap-2 mb-5">
+            <div className="flex flex-wrap gap-3 mb-6">
                 {tags?.map((tag, index) => (
                     <Link href={`/tag/${tag}`} key={tag}>
                         <Badge 
                             variant="outline"
-                            className={`border rounded-full text-xs font-medium transition-colors hover:text-white ${
+                            className={`border rounded-full text-sm font-medium transition-colors hover:text-white px-3 py-1 ${
                                 index % 2 === 0 
                                     ? 'border-primary/20 text-primary bg-primary/5 hover:bg-primary' 
                                     : 'border-secondary/20 text-secondary bg-secondary/5 hover:bg-secondary'
@@ -139,23 +139,23 @@ export function ForumCardComponent({
             </div>
 
             {/* Metrics Section */}
-            <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                <div className="flex items-center space-x-6 text-gray-500">
+            <div className="flex items-center justify-between pt-5 border-t border-gray-100">
+                <div className="flex items-center space-x-8 text-gray-500">
                     <div className="flex items-center space-x-2 hover:text-primary transition-colors cursor-pointer">
-                        <Eye className="w-4 h-4" />
-                        <span className="text-sm font-medium">{views}</span>
+                        <Eye className="w-5 h-5" />
+                        <span className="text-base font-medium">{views}</span>
                     </div>
                     <div className="flex items-center space-x-2 hover:text-primary transition-colors cursor-pointer">
-                        <MessageSquare className="w-4 h-4" />
-                        <span className="text-sm font-medium">{comments}</span>
+                        <MessageSquare className="w-5 h-5" />
+                        <span className="text-base font-medium">{comments}</span>
                     </div>
                     <div className="flex items-center space-x-2 hover:text-secondary transition-colors cursor-pointer">
-                        <ThumbsUp className="w-4 h-4" />
-                        <span className="text-sm font-medium">{upvotes}</span>
+                        <ThumbsUp className="w-5 h-5" />
+                        <span className="text-base font-medium">{upvotes}</span>
                     </div>
                 </div>
                 
-                <div className="text-primary font-medium text-sm group-hover:translate-x-1 transition-transform">
+                <div className="text-primary font-medium text-base group-hover:translate-x-1 transition-transform">
                     View Discussion →
                 </div>
             </div>

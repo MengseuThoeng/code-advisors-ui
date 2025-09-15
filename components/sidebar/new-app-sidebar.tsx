@@ -87,7 +87,7 @@ const personalSpace: NavItem[] = [
   {
     id: "history", 
     label: "History",
-    href: "/reading-history",
+    href: "/history",
     icon: Clock,
     description: "Recently viewed"
   },
@@ -107,7 +107,6 @@ export function AppSidebar() {
   const hiddenPaths = [
     "/content/new",
     "/user", 
-    "/edituser",
     "/about"
   ];
 

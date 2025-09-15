@@ -74,7 +74,7 @@ const personalSpace: NavItem[] = [
   {
     id: "history", 
     label: "History",
-    href: "/reading-history",
+    href: "/history",
     icon: Clock,
     description: "Recently viewed"
   },
@@ -110,7 +110,6 @@ export function AppSidebar() {
   // Hide sidebar on specific pages
   const hiddenPaths = [
     "/content/new",
-    "/edituser",
     "/about",
     "/auth/login",
     "/auth/register", 
