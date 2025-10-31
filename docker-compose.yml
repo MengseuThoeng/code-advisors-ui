@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  nextjs:
+    build: .
+    ports:
+      - "1680:1680"
+    environment:
+      - NODE_ENV=production
+    restart: always
+    networks:
+      - webnet
+networks:
+  webnet:
+    driver: bridge
