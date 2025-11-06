@@ -6,15 +6,28 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Shield, ArrowLeft, RefreshCw, CheckCircle, Mail } from 'lucide-react'
 import Link from 'next/link'
+import { useVerifyOtp } from '@/hooks/use-auth'
 
 export default function OTPPage() {
   const [otp, setOtp] = useState(['', '', '', '', '', ''])
-  const [isLoading, setIsLoading] = useState(false)
   const [isResending, setIsResending] = useState(false)
   const [timeLeft, setTimeLeft] = useState(60)
   const [canResend, setCanResend] = useState(false)
   const [isVerified, setIsVerified] = useState(false)
+  const [email, setEmail] = useState('')
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
+  
+  const verifyOtpMutation = useVerifyOtp()
+
+  // Get email from sessionStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const pendingEmail = sessionStorage.getItem('pendingVerificationEmail')
+      if (pendingEmail) {
+        setEmail(pendingEmail)
+      }
+    }
+  }, [])
 
   // Timer for resend countdown
   useEffect(() => {
@@ -77,18 +90,20 @@ export default function OTPPage() {
       return
     }
     
-    setIsLoading(true)
+    if (!email) {
+      alert('Email not found. Please register again.')
+      return
+    }
     
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false)
-      setIsVerified(true)
-      
-      // Redirect after success animation
-      setTimeout(() => {
-        window.location.href = '/auth/login'
-      }, 2000)
-    }, 2000)
+    // Call backend API
+    verifyOtpMutation.mutate(
+      { email, otp: otpString },
+      {
+        onSuccess: () => {
+          setIsVerified(true)
+        }
+      }
+    )
   }
 
   const handleResendOTP = async () => {
@@ -205,12 +220,21 @@ export default function OTPPage() {
                   </div>
                 </div>
 
+                {/* Error Message */}
+                {verifyOtpMutation.error && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                    <p className="text-red-600 text-sm">
+                      {verifyOtpMutation.error instanceof Error ? verifyOtpMutation.error.message : 'OTP verification failed'}
+                    </p>
+                  </div>
+                )}
+
                 <Button 
                   type="submit" 
                   className="w-full h-11 bg-[#CD3937] hover:bg-[#CD3937]/90 text-white font-medium"
-                  disabled={isLoading || otp.join('').length !== 6}
+                  disabled={verifyOtpMutation.isPending || otp.join('').length !== 6}
                 >
-                  {isLoading ? (
+                  {verifyOtpMutation.isPending ? (
                     <div className="flex items-center space-x-2">
                       <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                       <span>Verifying...</span>

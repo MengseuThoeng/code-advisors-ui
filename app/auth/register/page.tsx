@@ -10,11 +10,13 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Eye, EyeOff, Github, Mail, Lock, User, UserPlus, Code, Sparkles, Zap } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useRegister } from '@/hooks/use-auth'
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [formData, setFormData] = useState({
+    username: '',
     firstName: '',
     lastName: '',
     email: '',
@@ -22,7 +24,8 @@ export default function RegisterPage() {
     confirmPassword: ''
   })
   const [agreeToTerms, setAgreeToTerms] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  
+  const registerMutation = useRegister()
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }))
@@ -30,23 +33,25 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
     if (!agreeToTerms) {
       alert('Please agree to the Terms of Service')
       return
     }
+    
     if (formData.password !== formData.confirmPassword) {
       alert('Passwords do not match')
       return
     }
     
-    setIsLoading(true)
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false)
-      console.log('Registration:', formData)
-      // Redirect to OTP page
-      window.location.href = '/auth/otp'
-    }, 2000)
+    // Call backend API
+    registerMutation.mutate({
+      username: formData.username,
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      email: formData.email,
+      password: formData.password
+    })
   }
 
   const handleGoogleSignup = () => {
@@ -200,6 +205,23 @@ export default function RegisterPage() {
 
                 {/* Registration Form */}
                 <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* Username Field */}
+                  <div className="space-y-3">
+                    <Label htmlFor="username" className="text-sm font-semibold text-gray-700">Username</Label>
+                    <div className="relative group">
+                      <User className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-primary transition-colors" />
+                      <Input
+                        id="username"
+                        type="text"
+                        placeholder="johndoe"
+                        value={formData.username}
+                        onChange={(e) => handleInputChange('username', e.target.value)}
+                        className="pl-12 h-12 border-2 border-gray-200 focus:border-primary transition-all duration-300 text-base rounded-xl"
+                        required
+                      />
+                    </div>
+                  </div>
+
                   {/* Name Fields */}
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-3">
@@ -315,12 +337,21 @@ export default function RegisterPage() {
                     </Label>
                   </div>
 
+                  {/* Error Message */}
+                  {registerMutation.error && (
+                    <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4">
+                      <p className="text-red-600 text-sm font-medium">
+                        {registerMutation.error instanceof Error ? registerMutation.error.message : 'Registration failed'}
+                      </p>
+                    </div>
+                  )}
+
                   <Button 
                     type="submit" 
                     className="w-full h-14 bg-gradient-to-r from-secondary to-primary hover:from-secondary/90 hover:to-primary/90 text-white font-bold text-lg rounded-xl shadow-xl shadow-secondary/25 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-2xl"
-                    disabled={isLoading || !agreeToTerms}
+                    disabled={registerMutation.isPending || !agreeToTerms}
                   >
-                    {isLoading ? (
+                    {registerMutation.isPending ? (
                       <div className="flex items-center justify-center space-x-3">
                         <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                         <span>Creating your account...</span>

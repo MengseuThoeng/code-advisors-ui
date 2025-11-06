@@ -10,25 +10,20 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Eye, EyeOff, Github, Mail, Lock, ArrowRight, Code, Sparkles, Zap } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useLogin } from '@/hooks/use-auth'
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [rememberMe, setRememberMe] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  
+  const loginMutation = useLogin()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
     
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false)
-      console.log('Login:', { email, password, rememberMe })
-      // Redirect to home or dashboard
-      window.location.href = '/'
-    }, 2000)
+    loginMutation.mutate({ email, password })
   }
 
   const handleGoogleLogin = () => {
@@ -183,6 +178,15 @@ export default function LoginPage() {
                   </div>
                 </div>
 
+                {/* Error Message */}
+                {loginMutation.error && (
+                  <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4">
+                    <p className="text-red-600 text-sm font-medium">
+                      {loginMutation.error instanceof Error ? loginMutation.error.message : 'Login failed'}
+                    </p>
+                  </div>
+                )}
+
                 {/* Login Form */}
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="space-y-3">
@@ -244,9 +248,9 @@ export default function LoginPage() {
                   <Button 
                     type="submit" 
                     className="w-full h-14 bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white font-bold text-lg rounded-xl shadow-xl shadow-primary/25 transition-all duration-300 transform hover:scale-[1.02] hover:shadow-2xl"
-                    disabled={isLoading}
+                    disabled={loginMutation.isPending}
                   >
-                    {isLoading ? (
+                    {loginMutation.isPending ? (
                       <div className="flex items-center justify-center space-x-3">
                         <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                         <span>Signing you in...</span>

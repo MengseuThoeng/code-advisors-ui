@@ -8,6 +8,7 @@ import { roboto, koh_Santepheap } from "./fonts/fonts";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/sidebar/app-sidebar";
 import ConditionalLayout from "@/components/ConditionalLayout";
+import { QueryProvider } from "@/components/providers/QueryProvider";
 
 export default function RootLayout({
     children,
@@ -19,9 +20,11 @@ export default function RootLayout({
       <body
         className={`${roboto.variable} ${koh_Santepheap.variable} min-h-screen`}
       >
-        <ConditionalLayout>
-          {children}
-        </ConditionalLayout>
+        <QueryProvider>
+          <ConditionalLayout>
+            {children}
+          </ConditionalLayout>
+        </QueryProvider>
       </body>
     </html>
   );

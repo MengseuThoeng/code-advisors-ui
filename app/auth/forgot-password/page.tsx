@@ -8,21 +8,25 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Mail, ArrowLeft, CheckCircle } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useForgotPassword } from '@/hooks/use-auth'
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
   const [isEmailSent, setIsEmailSent] = useState(false)
+  
+  const forgotPasswordMutation = useForgotPassword()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
     
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false)
-      setIsEmailSent(true)
-    }, 2000)
+    forgotPasswordMutation.mutate(
+      { email },
+      {
+        onSuccess: () => {
+          setIsEmailSent(true)
+        }
+      }
+    )
   }
 
   if (isEmailSent) {
@@ -167,12 +171,21 @@ export default function ForgotPasswordPage() {
                   </div>
                 </div>
 
+                {/* Error Message */}
+                {forgotPasswordMutation.error && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                    <p className="text-red-600 text-sm">
+                      {forgotPasswordMutation.error instanceof Error ? forgotPasswordMutation.error.message : 'Failed to send reset link'}
+                    </p>
+                  </div>
+                )}
+
                 <Button 
                   type="submit" 
                   className="w-full h-11 bg-[#CD3937] hover:bg-[#CD3937]/90 text-white font-medium"
-                  disabled={isLoading}
+                  disabled={forgotPasswordMutation.isPending}
                 >
-                  {isLoading ? (
+                  {forgotPasswordMutation.isPending ? (
                     <div className="flex items-center space-x-2">
                       <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                       <span>Sending reset link...</span>
