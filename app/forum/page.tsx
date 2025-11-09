@@ -1,17 +1,26 @@
 "use client";
-import ForumCardList from "@/components/card-component/forum-card/ForumCardList";
-import React from "react";
 
-export default function page() {
-    return (
-        <main className="bg-gray-100 w-full min-h-screen">
-            <div className="ml-[320px] px-8 py-4 pt-16 flex justify-center">
-                <div className="max-w-6xl w-full">
-                    <div className="flex justify-center">
-                        <ForumCardList />
-                    </div>
-                </div>
-            </div>
-        </main>
-    );
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
+
+export default function ForumPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    // Show alert when someone navigates to /forum
+    alert("Coming Soon! 🚀\n\nThe Forum feature is currently under development and will be available in 2026.\n\nThank you for your patience!");
+    
+    // Redirect back to home
+    router.push("/home");
+  }, [router]);
+
+  return (
+    <main className="bg-gray-100 w-full min-h-screen flex items-center justify-center">
+      <div className="text-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto" />
+        <p className="mt-4 text-gray-600">Redirecting...</p>
+      </div>
+    </main>
+  );
 }

@@ -91,6 +91,7 @@ export function useResetPassword() {
  * Hook for logout
  */
 export function useLogout() {
+  const router = useRouter()
   const queryClient = useQueryClient()
   
   return useMutation({
@@ -100,6 +101,8 @@ export function useLogout() {
     onSuccess: () => {
       // Clear all queries
       queryClient.clear()
+      // Redirect to home
+      router.push('/')
     },
   })
 }
@@ -114,10 +117,23 @@ export function useLogout() {
 export function useCurrentUser() {
   return useQuery({
     queryKey: ['currentUser'],
-    queryFn: authApi.getCurrentUser,
-    enabled: authApi.isAuthenticated(),
+    queryFn: async () => {
+      try {
+        return await authApi.getCurrentUser();
+      } catch (error) {
+        // If authentication fails (invalid/expired token), clear the token
+        console.error('Auth error - clearing invalid tokens');
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
+        }
+        return null; // Return null instead of throwing to prevent UI errors
+      }
+    },
+    enabled: typeof window !== 'undefined' && authApi.isAuthenticated(),
     retry: false,
-  })
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
 }
 
 /**

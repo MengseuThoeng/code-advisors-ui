@@ -771,8 +771,10 @@ Authorization: Bearer {access_token}
 **Notes:**
 - Uses **slug** instead of numeric ID
 - View count is incremented automatically
-- `userLiked` and `isBookmarked` are `null` for unauthenticated users
+- `userLiked` is `null` for unauthenticated users, `true`/`false` for authenticated
+- `isBookmarked` is `false` for unauthenticated users, `true`/`false` for authenticated users based on actual bookmark status
 - Returns full article content (not just excerpt)
+- **Bookmark status is checked from the database** - if user has bookmarked the article, `isBookmarked` will be `true`
 
 ---
 
@@ -1143,6 +1145,8 @@ Or when removing:
   - If not bookmarked → bookmarks article
   - If already bookmarked → removes bookmark
 - Requires authentication
+- **After toggling, the GET endpoint will reflect the updated bookmark status**
+- The bookmark is stored in the database and persists across sessions
 
 ---
 

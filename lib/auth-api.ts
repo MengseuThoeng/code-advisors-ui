@@ -126,13 +126,18 @@ export async function verifyOtp(data: VerifyOtpRequest): Promise<ApiResponse> {
  * POST /api/auth/login
  */
 export async function login(data: LoginRequest): Promise<LoginResponse> {
+  console.log('Logging in with:', data.email);
+  
   const response = await fetch(`${API_BASE_URL}/auth/login`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
+    credentials: 'include', // Important: Include cookies
     body: JSON.stringify(data),
   });
+
+  console.log('Login response status:', response.status);
 
   if (!response.ok) {
     const error = await response.json();
@@ -140,11 +145,13 @@ export async function login(data: LoginRequest): Promise<LoginResponse> {
   }
 
   const result = await response.json();
+  console.log('Login response:', result);
   
-  // Store tokens in localStorage
+  // Store tokens in localStorage as backup (httpOnly cookies are primary)
   if (typeof window !== 'undefined') {
     localStorage.setItem('accessToken', result.accessToken);
     localStorage.setItem('refreshToken', result.refreshToken);
+    console.log('Tokens stored in localStorage');
   }
 
   return result;
@@ -223,7 +230,7 @@ export async function resetPassword(data: ResetPasswordRequest): Promise<ApiResp
 
 /**
  * 7. Get current user profile
- * GET /api/auth/me
+ * GET /api/users/profile
  */
 export async function getCurrentUser(): Promise<UserProfile> {
   const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
@@ -232,15 +239,28 @@ export async function getCurrentUser(): Promise<UserProfile> {
     throw new Error('No access token found');
   }
 
-  const response = await fetch(`${API_BASE_URL}/auth/me`, {
+  console.log('Fetching current user with token:', accessToken?.substring(0, 20) + '...');
+
+  const response = await fetch(`${API_BASE_URL}/users/profile`, {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${accessToken}`,
       'Content-Type': 'application/json',
     },
+    credentials: 'include', // Important: Include cookies
   });
 
+  console.log('getCurrentUser response status:', response.status);
+
   if (!response.ok) {
+    const errorText = await response.text();
+    console.error('getCurrentUser error response:', errorText);
+    
+    // Clear tokens on any error to prevent infinite loops
+    if (response.status === 401 || response.status === 500) {
+      logout();
+    }
+    
     if (response.status === 401) {
       // Try to refresh token
       const refreshToken = typeof window !== 'undefined' ? localStorage.getItem('refreshToken') : null;
@@ -256,11 +276,19 @@ export async function getCurrentUser(): Promise<UserProfile> {
         }
       }
     }
-    const error = await response.json();
-    throw new Error(error.message || 'Failed to get user profile');
+    
+    // Try to parse as JSON, fallback to text
+    try {
+      const errorJson = JSON.parse(errorText);
+      throw new Error(errorJson.message || 'Failed to get user profile');
+    } catch {
+      throw new Error(errorText || 'Failed to get user profile');
+    }
   }
 
-  return response.json();
+  const userData = await response.json();
+  console.log('Current user data:', userData);
+  return userData;
 }
 
 /**

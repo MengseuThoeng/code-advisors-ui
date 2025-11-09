@@ -56,6 +56,8 @@ import {
 import { tags } from "./option";
 import RichTextEditor from "@/components/text-editor/textEditor";
 import Preview from "@/components/text-editor/preview";
+import { useCreateArticle } from "@/hooks/use-article";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   title: z.string().min(5, {
@@ -85,6 +87,8 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 export default function CreateNewContent() {
+  const router = useRouter();
+  const createArticleMutation = useCreateArticle();
   const [uploading, setUploading] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("create");
@@ -142,9 +146,45 @@ export default function CreateNewContent() {
     form.setValue("cover", undefined);
   };
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log("Publishing:", publishType);
-    console.log("Form values:", values);
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      // Upload cover image if exists
+      let coverImageUrl = imagePreview;
+      
+      if (values.cover) {
+        setUploading(true);
+        const formData = new FormData();
+        formData.append('file', values.cover);
+        
+        const token = localStorage.getItem('accessToken');
+        const response = await fetch('http://159.65.8.211:8080/api/images/upload', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          coverImageUrl = data.url;
+        }
+        setUploading(false);
+      }
+
+      // Create article
+      createArticleMutation.mutate({
+        title: values.title,
+        content: values.content,
+        excerpt: values.description,
+        coverImage: coverImageUrl || undefined,
+        tags: values.tag,
+        status: publishType === 'publish' ? 'published' : 'draft',
+      });
+    } catch (error) {
+      console.error('Error creating article:', error);
+      setUploading(false);
+    }
   }
 
   const customSelectStyles = {
@@ -411,17 +451,19 @@ export default function CreateNewContent() {
                               variant="outline"
                               className="flex-1"
                               onClick={() => setPublishType("draft")}
+                              disabled={uploading || createArticleMutation.isPending}
                             >
                               <Save className="w-4 h-4 mr-2" />
-                              Save Draft
+                              {createArticleMutation.isPending && publishType === 'draft' ? 'Saving...' : 'Save Draft'}
                             </Button>
                             <Button
                               type="submit"
                               className="flex-1 bg-[#CD3937] hover:bg-[#CD3937]/90"
                               onClick={() => setPublishType("publish")}
+                              disabled={uploading || createArticleMutation.isPending}
                             >
                               <Send className="w-4 h-4 mr-2" />
-                              Publish
+                              {createArticleMutation.isPending && publishType === 'publish' ? 'Publishing...' : 'Publish'}
                             </Button>
                           </div>
                           

@@ -270,7 +270,7 @@ export default function UnifiedTagDetailPage({
                   Discover the best articles and content tagged with #{tagData.name}
                 </p>
               </div>
-              <CardList />
+              <CardList articles={[]} />
             </TabsContent>
             
             <TabsContent value="discussions" className="mt-6">
