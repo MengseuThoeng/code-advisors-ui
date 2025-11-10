@@ -3,7 +3,7 @@ services:
   nextjs:
     build: .
     ports:
-      - "1680:1680"
+      - "1680:3000"
     environment:
       - NODE_ENV=production
     restart: always
