@@ -1,4 +1,6 @@
 import React from "react";
+import "./styleTextEditor.css";
+import "highlight.js/styles/github.css";
 
 interface PreviewProps {
   content: string;

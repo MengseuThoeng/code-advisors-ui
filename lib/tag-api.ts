@@ -85,14 +85,16 @@ export async function getTags(params: {
     headers: {
       'Content-Type': 'application/json',
     },
-    credentials: 'include',
   });
 
   if (!response.ok) {
+    console.error('Failed to fetch tags:', response.status, response.statusText);
     throw new Error('Failed to fetch tags');
   }
 
   const data: BackendPaginatedTags = await response.json();
+  
+  console.log('Tags API response:', data);
   
   // Map backend response to frontend format
   return {

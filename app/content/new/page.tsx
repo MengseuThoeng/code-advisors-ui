@@ -53,10 +53,10 @@ import {
   TrendingUp,
   Coffee
 } from "lucide-react";
-import { tags } from "./option";
 import RichTextEditor from "@/components/text-editor/textEditor";
 import Preview from "@/components/text-editor/preview";
 import { useCreateArticle } from "@/hooks/use-article";
+import { useTags } from "@/hooks/use-tag";
 import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
@@ -94,6 +94,19 @@ export default function CreateNewContent() {
   const [activeTab, setActiveTab] = useState("create");
   const [publishType, setPublishType] = useState<"draft" | "publish">("draft");
 
+  // Fetch real tags from API
+  const { data: tagsData, isLoading: tagsLoading, error: tagsError } = useTags({ page: 0, limit: 100 });
+
+  // Debug: Log tags data
+  React.useEffect(() => {
+    if (tagsData) {
+      console.log('Tags loaded:', tagsData);
+    }
+    if (tagsError) {
+      console.error('Tags error:', tagsError);
+    }
+  }, [tagsData, tagsError]);
+
   const animatedComponents = makeAnimated();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -128,6 +141,32 @@ export default function CreateNewContent() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Check file size (10MB = 10 * 1024 * 1024 bytes)
+      const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+      if (file.size > maxSize) {
+        // Show error message
+        form.setError("cover", {
+          type: "manual",
+          message: `File size exceeds 10MB. Please choose a smaller image. (Current size: ${(file.size / (1024 * 1024)).toFixed(2)}MB)`,
+        });
+        // Clear the input
+        e.target.value = '';
+        return;
+      }
+
+      // Check file type
+      if (!file.type.startsWith('image/')) {
+        form.setError("cover", {
+          type: "manual",
+          message: "Please upload a valid image file (PNG, JPG, GIF, WebP)",
+        });
+        e.target.value = '';
+        return;
+      }
+
+      // Clear any previous errors
+      form.clearErrors("cover");
+
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result as string);
@@ -152,6 +191,16 @@ export default function CreateNewContent() {
       let coverImageUrl = imagePreview;
       
       if (values.cover) {
+        // Double-check file size before upload
+        const maxSize = 10 * 1024 * 1024; // 10MB
+        if (values.cover.size > maxSize) {
+          form.setError("cover", {
+            type: "manual",
+            message: `Image is too large (${(values.cover.size / (1024 * 1024)).toFixed(2)}MB). Maximum allowed size is 10MB.`,
+          });
+          return;
+        }
+
         setUploading(true);
         const formData = new FormData();
         formData.append('file', values.cover);
@@ -165,10 +214,26 @@ export default function CreateNewContent() {
           body: formData,
         });
         
-        if (response.ok) {
-          const data = await response.json();
-          coverImageUrl = data.url;
+        if (!response.ok) {
+          const errorText = await response.text();
+          let errorMessage = 'Failed to upload image';
+          
+          if (response.status === 413 || errorText.includes('upload size')) {
+            errorMessage = 'Image file is too large. Please choose an image smaller than 10MB.';
+          } else if (response.status === 400) {
+            errorMessage = 'Invalid image file. Please choose a valid image (PNG, JPG, GIF).';
+          }
+          
+          form.setError("cover", {
+            type: "manual",
+            message: errorMessage,
+          });
+          setUploading(false);
+          return;
         }
+        
+        const data = await response.json();
+        coverImageUrl = data.url;
         setUploading(false);
       }
 
@@ -395,11 +460,11 @@ export default function CreateNewContent() {
                                       </label>
                                     </div>
                                     <p className="text-sm text-gray-500 mt-2">
-                                      PNG, JPG, GIF up to 10MB
+                                      PNG, JPG, GIF up to <span className="font-semibold text-primary">10MB</span>
                                     </p>
                                   </div>
                                 )}
-                                <FormMessage />
+                                <FormMessage className="text-red-600 font-medium mt-2" />
                               </FormItem>
                             )}
                           />
@@ -546,29 +611,52 @@ export default function CreateNewContent() {
                           <FormField
                             control={form.control}
                             name="tag"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormControl>
-                                  <DynamicSelect
-                                    isMulti
-                                    components={animatedComponents}
-                                    options={tags}
-                                    value={tags.filter(tag => field.value.includes(tag.value))}
-                                    onChange={(selectedOptions: any) => {
-                                      field.onChange(selectedOptions.map((option: any) => option.value));
-                                    }}
-                                    placeholder="Select up to 5 tags..."
-                                    styles={customSelectStyles}
-                                    isOptionDisabled={() => field.value.length >= 5}
-                                    instanceId="tags-select"
-                                  />
-                                </FormControl>
-                                <FormDescription className="text-xs">
-                                  Choose relevant tags to help readers find your article
-                                </FormDescription>
-                                <FormMessage />
-                              </FormItem>
-                            )}
+                            render={({ field }) => {
+                              // Convert real tags from API to react-select format
+                              const tagOptions = tagsData?.content.map(tag => ({
+                                value: tag.name, // Use tag name for backend
+                                label: tag.name,
+                                slug: tag.slug,
+                              })) || [];
+
+                              return (
+                                <FormItem>
+                                  <FormControl>
+                                    {tagsLoading ? (
+                                      <div className="h-10 bg-gray-100 border border-gray-200 rounded-md animate-pulse"></div>
+                                    ) : tagsError ? (
+                                      <div className="text-sm text-red-600 p-3 bg-red-50 border border-red-200 rounded-md">
+                                        Failed to load tags. Please refresh the page.
+                                      </div>
+                                    ) : tagOptions.length === 0 ? (
+                                      <div className="text-sm text-amber-600 p-3 bg-amber-50 border border-amber-200 rounded-md">
+                                        No tags available. Please contact administrator.
+                                      </div>
+                                    ) : (
+                                      <DynamicSelect
+                                        isMulti
+                                        components={animatedComponents}
+                                        options={tagOptions}
+                                        value={tagOptions.filter(tag => field.value.includes(tag.value))}
+                                        onChange={(selectedOptions: any) => {
+                                          field.onChange(selectedOptions.map((option: any) => option.value));
+                                        }}
+                                        placeholder="Select up to 5 tags..."
+                                        styles={customSelectStyles}
+                                        isOptionDisabled={() => field.value.length >= 5}
+                                        instanceId="tags-select"
+                                        isSearchable={true}
+                                        noOptionsMessage={() => "No tags found"}
+                                      />
+                                    )}
+                                  </FormControl>
+                                  <FormDescription className="text-xs">
+                                    Choose relevant tags to help readers find your article
+                                  </FormDescription>
+                                  <FormMessage />
+                                </FormItem>
+                              );
+                            }}
                           />
                         </CardContent>
                       </Card>

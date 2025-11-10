@@ -43,6 +43,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { DEFAULT_AVATAR } from "@/lib/constants";
 import { useArticleComments, useCreateComment, useUpdateComment, useDeleteComment } from "@/hooks/use-comments";
 import { CommentItem } from "@/components/comment/CommentItem";
+import "@/components/text-editor/styleTextEditor.css";
+import "highlight.js/styles/github.css";
 
 export default function ContentDetail() {
   const params = useParams();
@@ -444,7 +446,7 @@ export default function ContentDetail() {
             <div className="lg:col-span-3 order-1 lg:order-2">
               <article className="prose prose-lg max-w-none">
                 <div 
-                  className="text-gray-800 leading-relaxed"
+                  className="tiptap text-gray-800 leading-relaxed"
                   dangerouslySetInnerHTML={{ __html: article.content || '' }}
                 />
               </article>
