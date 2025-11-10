@@ -273,6 +273,7 @@ Authorization: Bearer {access_token}
   "postsCount": 0,
   "forumPostsCount": 0,
   "isVerified": true,
+  "isFollowing": null,
   "role": "user",
   "createdAt": "2025-10-18T10:30:00+07:00"
 }
@@ -315,6 +316,7 @@ Authorization: Bearer {access_token}
   "postsCount": 0,
   "forumPostsCount": 0,
   "isVerified": true,
+  "isFollowing": null,
   "role": "user",
   "createdAt": "2025-10-18T10:30:00+07:00"
 }
@@ -372,6 +374,7 @@ Content-Type: application/json
   "postsCount": 0,
   "forumPostsCount": 0,
   "isVerified": true,
+  "isFollowing": null,
   "role": "user",
   "createdAt": "2025-10-18T10:30:00+07:00"
 }
@@ -387,6 +390,11 @@ Content-Type: application/json
 Get user profile by username
 
 **URL:** `http://localhost:8080/api/users/johndoe`
+
+**Headers (optional for authenticated users):**
+```
+Authorization: Bearer {access_token}
+```
 
 **Response:**
 ```json
@@ -411,6 +419,7 @@ Get user profile by username
   "postsCount": 0,
   "forumPostsCount": 0,
   "isVerified": true,
+  "isFollowing": true,
   "role": "user",
   "createdAt": "2025-10-18T10:30:00+07:00"
 }
@@ -418,6 +427,11 @@ Get user profile by username
 
 **Notes:**
 - Public endpoint, no authentication required
+- `isFollowing` field indicates if the authenticated user follows this user
+  - `true` - current user is following this user
+  - `false` - current user is not following this user  
+  - `null` - user is not authenticated or viewing their own profile
+- If authenticated, include `Authorization` header to get accurate `isFollowing` status
 
 ---
 

@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Search, TrendingUp, Clock, Flame, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -14,9 +14,18 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function ContentPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [page, setPage] = useState(0);
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<'latest' | 'popular' | 'trending'>('latest');
+  
+  // Read search query from URL
+  useEffect(() => {
+    const urlSearch = searchParams.get('search');
+    if (urlSearch) {
+      setSearch(urlSearch);
+    }
+  }, [searchParams]);
   
   const { data: articlesData, isLoading } = useArticles({
     page,

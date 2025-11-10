@@ -6,14 +6,23 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: '**',
-        pathname: '**',
       },
       {
         protocol: 'http',
-        hostname: '**',
-        pathname: '**',
+        hostname: 'localhost',
+      },
+      {
+        protocol: 'http',
+        hostname: '159.65.8.211',
+        port: '9000',
+      },
+      {
+        protocol: 'http',
+        hostname: '159.65.8.211',
+        port: '8080',
       },
     ],
+    unoptimized: true, // Disable image optimization for external images
   },
   eslint: {
     // Warning: This allows production builds to successfully complete even if

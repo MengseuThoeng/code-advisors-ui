@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Search, User, LogOut, Settings, Bell, PenSquare } from "lucide-react";
 import { useAuth, useLogout } from "@/hooks/use-auth";
@@ -19,8 +20,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function NavbarComponent() {
     const [mounted, setMounted] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
     const { user, isLoading, isAuthenticated } = useAuth();
     const logoutMutation = useLogout();
+    const router = useRouter();
 
     // Avoid hydration mismatch
     useEffect(() => {
@@ -29,6 +32,13 @@ export default function NavbarComponent() {
 
     const handleLogout = () => {
         logoutMutation.mutate();
+    };
+
+    const handleSearch = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (searchQuery.trim()) {
+            router.push(`/content?search=${encodeURIComponent(searchQuery.trim())}`);
+        }
     };
 
     return (
@@ -54,16 +64,21 @@ export default function NavbarComponent() {
 
             {/* Search Section */}
             <div className="flex flex-1 justify-center max-w-2xl mx-8">
-                <div className="relative w-full">
+                <form onSubmit={handleSearch} className="relative w-full">
                     <input
                         type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="Search articles, discussions, and more..."
                         className="w-full h-[44px] text-sm rounded-xl border-2 border-gray-200 pl-12 pr-4 focus:outline-none focus:border-primary/50 focus:ring-0 transition-colors bg-gray-50 focus:bg-white"
                     />
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2">
+                    <button 
+                        type="submit"
+                        className="absolute left-4 top-1/2 -translate-y-1/2 hover:text-primary transition-colors"
+                    >
                         <Search className="w-5 h-5 text-gray-400" />
-                    </div>
-                </div>
+                    </button>
+                </form>
             </div>
 
             {/* Action Buttons */}

@@ -28,6 +28,7 @@ export interface UserProfile {
   postsCount: number;
   forumPostsCount: number;
   isVerified: boolean;
+  isFollowing?: boolean; // Whether current user is following this user
   role: string;
   createdAt: string;
 }
@@ -164,9 +165,8 @@ export async function updateUserProfile(data: UpdateProfileRequest): Promise<Use
 export async function getUserByUsername(username: string): Promise<UserProfile> {
   const response = await fetch(`${API_BASE_URL}/users/${username}`, {
     method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: getAuthHeaders(), // Include auth to get isFollowing status
+    credentials: 'include',
   });
 
   if (!response.ok) {
@@ -240,18 +240,51 @@ export async function toggleFollowUser(userUuid: string): Promise<ApiResponse> {
     throw new Error('No access token found');
   }
 
-  const response = await fetch(`${API_BASE_URL}/users/${userUuid}/follow`, {
-    method: 'POST',
-    headers: getAuthHeaders(),
-    credentials: 'include',
-  });
+  console.log('Toggling follow for user:', userUuid);
+  console.log('API URL:', `${API_BASE_URL}/users/${userUuid}/follow`);
+  console.log('Using token:', token?.substring(0, 20) + '...');
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Failed to update follow status');
+  try {
+    // Create abort controller for timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
+    const response = await fetch(`${API_BASE_URL}/users/${userUuid}/follow`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify({}), // Send empty JSON object
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+    console.log('Follow toggle response status:', response.status);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Follow toggle error response:', errorText);
+      
+      try {
+        const error = JSON.parse(errorText);
+        throw new Error(error.message || 'Failed to update follow status');
+      } catch {
+        throw new Error(errorText || 'Failed to update follow status');
+      }
+    }
+
+    const result = await response.json();
+    console.log('Follow toggle success:', result);
+    return result;
+  } catch (error: any) {
+    if (error.name === 'AbortError') {
+      console.error('Follow toggle timeout - request took too long');
+      throw new Error('Request timeout - server is not responding');
+    }
+    console.error('Follow toggle fetch error:', error);
+    throw error;
   }
-
-  return response.json();
 }
 
 /**

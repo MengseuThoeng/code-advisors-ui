@@ -19,6 +19,7 @@ import {
   Tag,
   Search,
   Code,
+  Info,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
@@ -63,6 +64,13 @@ const mainNavigation: NavItem[] = [
     href: "/users",
     icon: Users,
     description: "Discover developers"
+  },
+  {
+    id: "about",
+    label: "About Us",
+    href: "/about",
+    icon: Info,
+    description: "Learn more about us"
   },
 ];
 
@@ -116,7 +124,6 @@ export function AppSidebar() {
   // Hide sidebar ONLY on these specific pages
   const hiddenPaths = [
     "/content/new", // Hide on create new article page
-    "/about",
   ];
 
   // Hide sidebar on article detail pages (/content/[slug])

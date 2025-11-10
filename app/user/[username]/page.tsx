@@ -18,7 +18,8 @@ import {
   UserPlus,
   UserCheck,
   Flag,
-  Settings
+  Settings,
+  Loader2
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -26,8 +27,10 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { useUserByUsername, useUserStats, useToggleFollow } from "@/hooks/use-user";
+import { useArticles } from "@/hooks/use-article";
 import { useAuth } from "@/hooks/use-auth";
 import { DEFAULT_AVATAR } from "@/lib/constants";
+import { UserArticleList } from "@/components/card-component/card/UserArticleList";
 
 export default function UserProfile() {
   const params = useParams();
@@ -37,11 +40,18 @@ export default function UserProfile() {
   // Fetch user data using TanStack Query
   const { data: userData, isLoading, error } = useUserByUsername(username);
   const { data: userStats } = useUserStats(userData?.uuid || '');
+  const { data: userArticles, isLoading: articlesLoading } = useArticles({ 
+    author: username,
+    page: 0,
+    limit: 10,
+    sortBy: 'latest'
+  });
   const { user: currentUser } = useAuth();
   const toggleFollowMutation = useToggleFollow();
 
   const isOwnProfile = currentUser?.username === username;
-  const isFollowing = false; // TODO: Implement follow status check
+  // Get isFollowing status from userData (backend returns this when authenticated)
+  const isFollowing = userData?.isFollowing === true;
 
   const handleFollow = () => {
     if (userData?.uuid) {
@@ -354,14 +364,39 @@ export default function UserProfile() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-6">
-                    {/* Recent Posts will be loaded here */}
-                    <div className="text-center py-8 text-gray-500">
-                      <BookOpen className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                      <p>{userData.firstName}'s posts and activities will appear here</p>
-                      <p className="text-sm">Coming soon: Article integration</p>
+                  {articlesLoading ? (
+                    <div className="flex justify-center items-center py-12">
+                      <Loader2 className="w-8 h-8 animate-spin text-primary" />
                     </div>
-                  </div>
+                  ) : userArticles?.content && userArticles.content.length > 0 ? (
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between mb-4">
+                        <p className="text-sm text-gray-600">
+                          {userArticles.totalElements} {userArticles.totalElements === 1 ? 'article' : 'articles'} published
+                        </p>
+                      </div>
+                      <UserArticleList articles={userArticles.content} />
+                    </div>
+                  ) : (
+                    <div className="text-center py-12 text-gray-500">
+                      <BookOpen className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                      <p className="font-medium text-gray-700">No articles yet</p>
+                      <p className="text-sm mt-1">
+                        {isOwnProfile 
+                          ? "Start writing your first article!" 
+                          : `${userData.firstName} hasn't published any articles yet.`
+                        }
+                      </p>
+                      {isOwnProfile && (
+                        <Button 
+                          onClick={() => router.push('/content/new')}
+                          className="mt-4"
+                        >
+                          Create Article
+                        </Button>
+                      )}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </div>

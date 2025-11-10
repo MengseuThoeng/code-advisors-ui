@@ -116,7 +116,8 @@ export function useToggleFollow() {
 
   return useMutation({
     mutationFn: (userUuid: string) => userApi.toggleFollowUser(userUuid),
-    onSuccess: (_, userUuid) => {
+    onSuccess: (data, userUuid) => {
+      console.log('Follow toggle successful:', data);
       // Invalidate queries to refetch updated counts
       queryClient.invalidateQueries({ queryKey: ['user'] });
       queryClient.invalidateQueries({ queryKey: ['userFollowers', userUuid] });
@@ -126,6 +127,10 @@ export function useToggleFollow() {
     },
     onError: (error: Error) => {
       console.error('Follow toggle failed:', error);
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+      // You could show a toast notification here
+      alert(`Failed to update follow status: ${error.message}`);
     },
   });
 }

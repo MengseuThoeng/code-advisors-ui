@@ -101,7 +101,7 @@ export default function TeamSection() {
   return (
     <section className="py-16 container mx-auto px-4">
       <h2 className="text-3xl font-bold text-red-600 text-center mb-12" data-aos="fade-down" data-aos-duration="1000">
-        អ្នកដឹកនាំរបស់យើង
+        Leaders of CodeAdvisors
       </h2>
       
       {/* Leaders Grid */}
@@ -114,7 +114,7 @@ export default function TeamSection() {
       </div>
 
       <h3 className="text-3xl font-bold text-red-600 text-center mb-20" data-aos="fade-down" data-aos-duration="1000">
-        សមាជិករបស់ CodeAdvisors
+        Members of CodeAdvisors
       </h3>
 
       {/* Members Grid */}
