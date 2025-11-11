@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import {
   getArticles,
@@ -37,6 +37,25 @@ export function useArticles(params: GetArticlesParams = {}) {
   return useQuery({
     queryKey: articleKeys.list(params),
     queryFn: () => getArticles(params),
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  });
+}
+
+/**
+ * Infinite scroll articles
+ */
+export function useInfiniteArticles(params: Omit<GetArticlesParams, 'page'> = {}) {
+  return useInfiniteQuery({
+    queryKey: [...articleKeys.lists(), 'infinite', params],
+    queryFn: ({ pageParam = 0 }) => getArticles({ ...params, page: pageParam }),
+    getNextPageParam: (lastPage) => {
+      // Return next page number if there are more pages
+      if (lastPage.number < lastPage.totalPages - 1) {
+        return lastPage.number + 1;
+      }
+      return undefined;
+    },
+    initialPageParam: 0,
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }

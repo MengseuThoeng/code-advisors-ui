@@ -1,0 +1,359 @@
+# Missing APIs for Admin Dashboard
+
+## 📊 Admin Dashboard Requirements
+
+### Current Status from API_DONE.md:
+✅ User has `role` field (can be "user" or "admin")
+✅ Some admin-only endpoints exist (tag update/delete)
+✅ User statistics available per user
+❌ No platform-wide statistics/analytics APIs
+❌ No admin user management APIs
+❌ No admin content moderation APIs
+
+---
+
+## 🔴 REQUIRED APIs for Admin Dashboard
+
+### 1. Admin Authentication & Authorization
+**Status:** Partially Available
+
+#### What we have:
+- ✅ Login returns user with `role` field
+- ✅ `/api/auth/me` returns current user role
+
+#### What we need:
+- ❌ Middleware to protect admin routes (backend may have this, need to verify)
+- ❌ Admin role verification endpoint
+
+**Proposed API:**
+```
+GET /api/admin/verify
+Response: { "isAdmin": true/false, "role": "admin" }
+```
+
+---
+
+### 2. Platform Statistics (Dashboard Overview)
+**Status:** NOT AVAILABLE
+
+**Required APIs:**
+
+#### A. Overall Platform Stats
+```
+GET /api/admin/stats/overview
+Response: {
+  "totalUsers": 1250,
+  "totalArticles": 450,
+  "totalComments": 2300,
+  "totalTags": 45,
+  "totalNotifications": 5600,
+  "activeUsers": 320,  // users active in last 7 days
+  "todayRegistrations": 15,
+  "todayArticles": 8
+}
+```
+
+#### B. User Growth Stats
+```
+GET /api/admin/stats/users
+Query params: ?period=7d|30d|90d|1y
+Response: {
+  "period": "30d",
+  "totalUsers": 1250,
+  "newUsers": 150,
+  "activeUsers": 320,
+  "verifiedUsers": 1100,
+  "unverifiedUsers": 150,
+  "usersByRole": {
+    "admin": 3,
+    "user": 1247
+  },
+  "growthData": [
+    { "date": "2025-10-15", "count": 10 },
+    { "date": "2025-10-16", "count": 15 }
+  ]
+}
+```
+
+#### C. Content Stats
+```
+GET /api/admin/stats/content
+Response: {
+  "articles": {
+    "total": 450,
+    "published": 380,
+    "draft": 70,
+    "todayPublished": 8
+  },
+  "comments": {
+    "total": 2300,
+    "todayComments": 45
+  },
+  "tags": {
+    "total": 45,
+    "mostUsed": [
+      { "name": "JavaScript", "count": 120 },
+      { "name": "React", "count": 95 }
+    ]
+  }
+}
+```
+
+#### D. Engagement Stats
+```
+GET /api/admin/stats/engagement
+Response: {
+  "likes": {
+    "total": 5600,
+    "todayLikes": 120
+  },
+  "bookmarks": {
+    "total": 1200,
+    "todayBookmarks": 35
+  },
+  "views": {
+    "total": 45000,
+    "todayViews": 1200
+  }
+}
+```
+
+---
+
+### 3. User Management (Admin)
+**Status:** Partially Available
+
+#### What we have:
+- ✅ Get all users (might need pagination params)
+- ✅ Get user by UUID
+- ✅ User statistics
+
+#### What we need:
+
+#### A. List All Users with Filters
+```
+GET /api/admin/users
+Query params: ?page=0&size=20&role=user|admin&status=verified|unverified&sortBy=createdAt|reputation
+Response: {
+  "content": [
+    {
+      "uuid": "...",
+      "username": "johndoe",
+      "email": "john@example.com",
+      "role": "user",
+      "isVerified": true,
+      "reputation": 150,
+      "postsCount": 10,
+      "createdAt": "2025-10-01T10:00:00",
+      "lastLoginAt": "2025-11-11T14:30:00"
+    }
+  ],
+  "totalPages": 10,
+  "totalElements": 200,
+  "size": 20,
+  "number": 0
+}
+```
+
+#### B. Update User Role
+```
+PUT /api/admin/users/{userUuid}/role
+Request: { "role": "admin" }
+Response: {
+  "message": "User role updated successfully",
+  "user": { ... }
+}
+```
+
+#### C. Ban/Suspend User
+```
+POST /api/admin/users/{userUuid}/ban
+Request: { "reason": "Spam content", "duration": "7d" }
+Response: { "message": "User banned successfully" }
+
+POST /api/admin/users/{userUuid}/unban
+Response: { "message": "User unbanned successfully" }
+```
+
+#### D. Delete User (Hard Delete)
+```
+DELETE /api/admin/users/{userUuid}
+Response: { "message": "User deleted successfully" }
+```
+
+---
+
+### 4. Content Moderation (Admin)
+**Status:** Partially Available
+
+#### What we have:
+- ✅ Get all articles
+- ✅ Delete article (by owner)
+- ✅ Update article (by owner)
+
+#### What we need:
+
+#### A. Get All Articles (Admin View)
+```
+GET /api/admin/articles
+Query params: ?page=0&size=20&status=published|draft|flagged&sortBy=createdAt|views
+Response: {
+  "content": [
+    {
+      "uuid": "...",
+      "title": "How to...",
+      "slug": "how-to-...",
+      "author": { "username": "johndoe", "email": "..." },
+      "status": "published",
+      "viewsCount": 1200,
+      "likesCount": 45,
+      "commentsCount": 12,
+      "createdAt": "2025-10-15T10:00:00",
+      "publishedAt": "2025-10-15T11:00:00"
+    }
+  ],
+  "totalPages": 20,
+  "totalElements": 400,
+  "size": 20,
+  "number": 0
+}
+```
+
+#### B. Delete Article (Admin)
+```
+DELETE /api/admin/articles/{articleSlug}
+Response: { "message": "Article deleted successfully" }
+```
+
+#### C. Update Article Status (Admin)
+```
+PUT /api/admin/articles/{articleSlug}/status
+Request: { "status": "published|draft|archived" }
+Response: { "message": "Article status updated" }
+```
+
+---
+
+### 5. Tag Management (Admin)
+**Status:** AVAILABLE ✅
+
+We already have:
+- ✅ Create tag
+- ✅ Update tag (admin only)
+- ✅ Delete tag (admin only)
+- ✅ Get all tags
+
+---
+
+### 6. Comments Moderation (Admin)
+**Status:** Partially Available
+
+#### What we have:
+- ✅ Get comments
+- ✅ Delete comment (by owner)
+
+#### What we need:
+
+#### A. Get All Comments (Admin View)
+```
+GET /api/admin/comments
+Query params: ?page=0&size=20&flagged=true|false
+Response: {
+  "content": [
+    {
+      "id": 123,
+      "content": "Great article!",
+      "author": { "username": "jane", "uuid": "..." },
+      "articleSlug": "how-to-react",
+      "createdAt": "2025-11-10T14:00:00",
+      "isFlagged": false
+    }
+  ],
+  "totalPages": 50,
+  "totalElements": 1000,
+  "size": 20,
+  "number": 0
+}
+```
+
+#### B. Delete Comment (Admin)
+```
+DELETE /api/admin/comments/{commentId}
+Response: { "message": "Comment deleted successfully" }
+```
+
+---
+
+### 7. Notifications Management (Admin)
+**Status:** User-only available
+
+#### What we have:
+- ✅ User can get their own notifications
+
+#### What we need:
+
+#### A. Get System Notifications Stats
+```
+GET /api/admin/notifications/stats
+Response: {
+  "totalSent": 5600,
+  "todaySent": 120,
+  "unreadCount": 2300,
+  "byType": {
+    "LIKE": 2000,
+    "COMMENT": 1800,
+    "FOLLOW": 1200,
+    "MENTION": 600
+  }
+}
+```
+
+---
+
+## 📋 Summary of Required APIs
+
+### Priority 1 (MUST HAVE for basic admin dashboard):
+1. ✅ Admin verification endpoint
+2. ✅ Platform overview statistics
+3. ✅ User management (list, ban, role update)
+4. ✅ Content list with admin view
+
+### Priority 2 (NICE TO HAVE):
+5. Analytics/growth data
+6. Comment moderation
+7. Notification stats
+
+### Priority 3 (FUTURE):
+8. Reports/Flags system
+9. Activity logs
+10. Bulk operations
+
+---
+
+## 🎨 Admin Dashboard UI Plan
+
+### Dashboard Structure:
+```
+/admin
+├── /dashboard        → Overview stats (cards + charts)
+├── /users           → User management table
+├── /articles        → Articles management table
+├── /comments        → Comments moderation
+├── /tags            → Tags CRUD (already available)
+└── /settings        → Platform settings
+```
+
+### Authentication Flow:
+1. User logs in (same /auth/login endpoint)
+2. Check user.role === 'admin'
+3. If admin → redirect to /admin/dashboard
+4. If not admin → redirect to /home
+5. Admin routes protected by middleware checking role
+
+---
+
+## 🔒 Security Notes:
+- All admin APIs MUST require authentication
+- All admin APIs MUST check user role = "admin"
+- Return 403 Forbidden if not admin
+- Log all admin actions for audit trail

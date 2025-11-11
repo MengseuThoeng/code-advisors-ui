@@ -13,7 +13,7 @@ import Highlight from "@tiptap/extension-highlight";
 import Image from "@tiptap/extension-image";
 import BulletList from "@tiptap/extension-bullet-list";
 import OrderedList from "@tiptap/extension-ordered-list";
-import { use, useState } from "react";
+import { use, useState, useEffect } from "react";
 import ImageResize from "tiptap-extension-resize-image";
 import { all, common, createLowlight } from "lowlight";
 import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
@@ -91,6 +91,13 @@ export default function RichTextEditor({ content, onChange }: { content: any; on
       setHtmlContent(html);
     },
   });
+
+  // Update editor content when the content prop changes (for edit mode)
+  useEffect(() => {
+    if (editor && content !== editor.getHTML()) {
+      editor.commands.setContent(content);
+    }
+  }, [content, editor]);
 
   // const handlePreviewClick = () => {
   //   setShowPreview(!showPreview);

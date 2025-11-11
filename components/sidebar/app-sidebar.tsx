@@ -25,6 +25,7 @@ import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { ComingSoonDialog } from "@/components/ui/coming-soon-dialog";
+import { useAuth } from "@/hooks/use-auth";
 
 // Modern sidebar with CodeAdvisor brand colors
 interface NavItem {
@@ -120,6 +121,7 @@ export function AppSidebar() {
   const router = useRouter();
   const [comingSoonOpen, setComingSoonOpen] = useState(false);
   const [comingSoonFeature, setComingSoonFeature] = useState("");
+  const { user, isLoading: isAuthLoading } = useAuth();
 
   // Hide sidebar ONLY on these specific pages
   const hiddenPaths = [
@@ -241,15 +243,17 @@ export function AppSidebar() {
             </SidebarMenu>
           </div>
 
-          {/* Personal Space */}
-          <div>
-            <h3 className="text-xs font-bold text-primary/70 uppercase tracking-wider mb-6 px-2">
-              Your Space
-            </h3>
-            <SidebarMenu className="space-y-2">
-              {personalSpace.map(renderNavItem)}
-            </SidebarMenu>
-          </div>
+          {/* Personal Space - Only show when logged in */}
+          {user && (
+            <div>
+              <h3 className="text-xs font-bold text-primary/70 uppercase tracking-wider mb-6 px-2">
+                Your Space
+              </h3>
+              <SidebarMenu className="space-y-2">
+                {personalSpace.map(renderNavItem)}
+              </SidebarMenu>
+            </div>
+          )}
 
           {/* Developer Tools */}
           <div>
