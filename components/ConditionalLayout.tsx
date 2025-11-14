@@ -18,7 +18,8 @@ export default function ConditionalLayout({
     "/auth/register", 
     "/auth/otp",
     "/auth/forgot-password",
-    "/loading-test"
+    "/loading-test",
+    "/admin" // Hide on all admin pages
   ];
 
   const shouldHideNavigation = hiddenNavPaths.some(path => pathname.startsWith(path));

@@ -1,4 +1,5 @@
 "use client";
+import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { 
   MessageSquare, 
@@ -19,7 +20,9 @@ import {
   UserCheck,
   Flag,
   Settings,
-  Loader2
+  Loader2,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -37,13 +40,17 @@ export default function UserProfile() {
   const router = useRouter();
   const username = (params.username as string)?.replace('@', '');
   
+  // Pagination state for articles
+  const [articlesPage, setArticlesPage] = useState(0);
+  const articlesPageSize = 5;
+  
   // Fetch user data using TanStack Query
   const { data: userData, isLoading, error } = useUserByUsername(username);
   const { data: userStats } = useUserStats(userData?.uuid || '');
   const { data: userArticles, isLoading: articlesLoading } = useArticles({ 
     author: username,
-    page: 0,
-    limit: 10,
+    page: articlesPage,
+    limit: articlesPageSize,
     sortBy: 'latest'
   });
   const { user: currentUser } = useAuth();
@@ -53,6 +60,31 @@ export default function UserProfile() {
   // Get isFollowing status from userData (backend returns this when authenticated)
   const isFollowing = userData?.isFollowing === true;
 
+  // Reset page when username changes
+  useEffect(() => {
+    setArticlesPage(0);
+  }, [username]);
+
+  // Auto-navigate back if current page is empty (but not the first page)
+  useEffect(() => {
+    if (!articlesLoading && articlesPage > 0 && userArticles?.content?.length === 0) {
+      // Current page is empty, go back to previous page
+      setArticlesPage(prev => Math.max(0, prev - 1));
+    }
+  }, [userArticles, articlesPage, articlesLoading]);
+
+  // Debug: Log articles data
+  useEffect(() => {
+    if (userArticles) {
+      console.log('User articles data:', {
+        content: userArticles.content?.length,
+        totalElements: userArticles.totalElements,
+        totalPages: userArticles.totalPages,
+        currentPage: articlesPage
+      });
+    }
+  }, [userArticles, articlesPage]);
+
   const handleFollow = () => {
     if (userData?.uuid) {
       toggleFollowMutation.mutate(userData.uuid);
@@ -61,6 +93,12 @@ export default function UserProfile() {
 
   const handleMessage = () => {
     router.push(`/messages/${username}`);
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setArticlesPage(newPage);
+    // Scroll to the posts section
+    window.scrollTo({ top: 400, behavior: 'smooth' });
   };
 
   if (isLoading) {
@@ -370,12 +408,39 @@ export default function UserProfile() {
                     </div>
                   ) : userArticles?.content && userArticles.content.length > 0 ? (
                     <div className="space-y-4">
-                      <div className="flex items-center justify-between mb-4">
-                        <p className="text-sm text-gray-600">
-                          {userArticles.totalElements} {userArticles.totalElements === 1 ? 'article' : 'articles'} published
-                        </p>
-                      </div>
                       <UserArticleList articles={userArticles.content} />
+                      
+                      {/* Pagination Controls */}
+                      {(articlesPage > 0 || userArticles.content.length >= articlesPageSize) && (
+                        <div className="flex items-center justify-between pt-6 border-t">
+                          <div className="text-sm text-gray-600">
+                            Showing {userArticles.content.length} article{userArticles.content.length !== 1 ? 's' : ''} on page {articlesPage + 1}
+                          </div>
+                          <div className="flex gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handlePageChange(Math.max(0, articlesPage - 1))}
+                              disabled={articlesPage === 0 || articlesLoading}
+                            >
+                              <ChevronLeft className="h-4 w-4 mr-1" />
+                              Previous
+                            </Button>
+                            <div className="flex items-center px-3 text-sm text-gray-600">
+                              Page {articlesPage + 1}
+                            </div>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handlePageChange(articlesPage + 1)}
+                              disabled={userArticles.content.length < articlesPageSize || articlesLoading}
+                            >
+                              Next
+                              <ChevronRight className="h-4 w-4 ml-1" />
+                            </Button>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div className="text-center py-12 text-gray-500">

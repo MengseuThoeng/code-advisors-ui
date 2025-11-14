@@ -48,10 +48,19 @@ export function useInfiniteArticles(params: Omit<GetArticlesParams, 'page'> = {}
   return useInfiniteQuery({
     queryKey: [...articleKeys.lists(), 'infinite', params],
     queryFn: ({ pageParam = 0 }) => getArticles({ ...params, page: pageParam }),
-    getNextPageParam: (lastPage) => {
-      // Return next page number if there are more pages
-      if (lastPage.number < lastPage.totalPages - 1) {
-        return lastPage.number + 1;
+    getNextPageParam: (lastPage, allPages) => {
+      // If totalPages is available, use it
+      if (lastPage.totalPages !== undefined && lastPage.number !== undefined) {
+        if (lastPage.number < lastPage.totalPages - 1) {
+          return lastPage.number + 1;
+        }
+        return undefined;
+      }
+      
+      // Fallback: if content length equals page size, there might be more
+      const pageSize = params.limit || 12;
+      if (lastPage.content && lastPage.content.length >= pageSize) {
+        return allPages.length; // Next page number
       }
       return undefined;
     },

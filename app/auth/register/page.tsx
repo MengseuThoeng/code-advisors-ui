@@ -16,7 +16,6 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [formData, setFormData] = useState({
-    username: '',
     firstName: '',
     lastName: '',
     email: '',
@@ -46,7 +45,6 @@ export default function RegisterPage() {
     
     // Call backend API
     registerMutation.mutate({
-      username: formData.username,
       firstName: formData.firstName,
       lastName: formData.lastName,
       email: formData.email,
@@ -205,23 +203,6 @@ export default function RegisterPage() {
 
                 {/* Registration Form */}
                 <form onSubmit={handleSubmit} className="space-y-6">
-                  {/* Username Field */}
-                  <div className="space-y-3">
-                    <Label htmlFor="username" className="text-sm font-semibold text-gray-700">Username</Label>
-                    <div className="relative group">
-                      <User className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-primary transition-colors" />
-                      <Input
-                        id="username"
-                        type="text"
-                        placeholder="johndoe"
-                        value={formData.username}
-                        onChange={(e) => handleInputChange('username', e.target.value)}
-                        className="pl-12 h-12 border-2 border-gray-200 focus:border-primary transition-all duration-300 text-base rounded-xl"
-                        required
-                      />
-                    </div>
-                  </div>
-
                   {/* Name Fields */}
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-3">

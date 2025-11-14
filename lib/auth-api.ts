@@ -140,8 +140,50 @@ export async function login(data: LoginRequest): Promise<LoginResponse> {
   console.log('Login response status:', response.status);
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.message || 'Login failed');
+    let errorMessage = 'Login failed. Please try again.';
+    
+    try {
+      const error = await response.json();
+      
+      // Map common error messages to user-friendly ones
+      if (error.message) {
+        const msg = error.message.toLowerCase();
+        
+        if (msg.includes('invalid') || msg.includes('incorrect') || msg.includes('wrong')) {
+          errorMessage = 'Invalid email or password. Please try again.';
+        } else if (msg.includes('not found') || msg.includes('user does not exist')) {
+          errorMessage = 'Account not found. Please check your email.';
+        } else if (msg.includes('verify') || msg.includes('verification') || msg.includes('not verified')) {
+          errorMessage = 'Please verify your email before logging in.';
+        } else if (msg.includes('disabled') || msg.includes('banned') || msg.includes('blocked')) {
+          errorMessage = 'Your account has been disabled. Please contact support.';
+        } else if (msg.includes('credentials')) {
+          errorMessage = 'Invalid email or password. Please try again.';
+        } else {
+          // If we get a reasonably readable message, use it
+          errorMessage = error.message;
+        }
+      } else if (response.status === 401) {
+        errorMessage = 'Invalid email or password. Please try again.';
+      } else if (response.status === 403) {
+        errorMessage = 'Access denied. Your account may be disabled.';
+      } else if (response.status === 404) {
+        errorMessage = 'Account not found. Please check your email.';
+      }
+    } catch (e) {
+      // If JSON parsing fails, provide a generic user-friendly message
+      if (response.status === 401) {
+        errorMessage = 'Invalid email or password. Please try again.';
+      } else if (response.status === 403) {
+        errorMessage = 'Access denied. Your account may be disabled.';
+      } else if (response.status === 404) {
+        errorMessage = 'Account not found. Please check your email.';
+      } else if (response.status >= 500) {
+        errorMessage = 'Server error. Please try again later.';
+      }
+    }
+    
+    throw new Error(errorMessage);
   }
 
   const result = await response.json();

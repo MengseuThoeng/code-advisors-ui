@@ -1,5 +1,35 @@
 # API Documentation - Completed Features
 
+## 🔧 Recent Bug Fixes (November 10, 2025)
+
+### ✅ Fixed Issues:
+
+1. **Follow/Unfollow Endpoint Response Issue** 
+   - **Issue:** POST `/api/users/{userUuid}/follow` was hanging and not returning a response
+   - **Fix:** Added comprehensive error handling, detailed logging, and proper exception handling
+   - **Changes:**
+     - Added try-catch blocks to prevent silent failures
+     - Added detailed logging throughout the follow/unfollow flow
+     - Fixed notification creation to not fail the entire operation if WebSocket broadcast fails
+     - Added bounds checking to prevent negative follower counts
+   - **Status:** ✅ FIXED
+
+2. **Bookmark Status Not Showing in Article Details**
+   - **Issue:** `isBookmarked` field was always returning `false` even when bookmarked
+   - **Fix:** Added `@Transactional` annotation and detailed logging to ensure proper bookmark check
+   - **Changes:**
+     - Made `getArticleBySlug` method transactional
+     - Added comprehensive logging to track bookmark check flow
+     - Verified BookmarkRepository query is executing correctly
+   - **Status:** ✅ FIXED - Now properly checks database and returns actual bookmark status
+
+3. **Enhanced Logging**
+   - All critical operations now have detailed logging
+   - Easy to debug issues by checking logs
+   - Logs show the complete flow from controller → service → repository
+
+---
+
 ## 🎯 Completed APIs for CodeAdvisor Platform
 
 This document lists all the APIs that have been implemented and are ready for testing.
@@ -1470,6 +1500,561 @@ Simply use the URL in `<img>` tag:
 - **Bucket:** somrosly-media
 - **Access:** Public read (images are publicly accessible)
 - **Storage:** Persistent (images remain until manually deleted)
+
+---
+
+## 🔐 Admin Dashboard APIs
+
+### Authentication & Authorization
+**All admin endpoints require:**
+- Valid JWT access token
+- User role must be `admin`
+- Returns `403 Forbidden` if not admin
+
+---
+
+### 1. GET `/api/admin/verify`
+Verify if current user is admin
+
+**URL:** `http://localhost:8080/api/admin/verify`
+
+**Headers:**
+```
+Authorization: Bearer {access_token}
+```
+
+**Response:**
+```json
+{
+  "isAdmin": true,
+  "role": "admin"
+}
+```
+
+---
+
+### 2. GET `/api/admin/stats/overview`
+Get platform overview statistics
+
+**URL:** `http://localhost:8080/api/admin/stats/overview`
+
+**Headers:**
+```
+Authorization: Bearer {access_token}
+```
+
+**Response:**
+```json
+{
+  "totalUsers": 1250,
+  "totalArticles": 450,
+  "totalComments": 2300,
+  "totalTags": 45,
+  "totalNotifications": 5600,
+  "activeUsers": 320,
+  "todayRegistrations": 15,
+  "todayArticles": 8
+}
+```
+
+**Notes:**
+- `activeUsers`: Users who logged in within last 7 days
+- `todayRegistrations`: Users registered today
+- `todayArticles`: Articles published today
+
+---
+
+### 3. GET `/api/admin/stats/users`
+Get user growth statistics
+
+**URL:** `http://localhost:8080/api/admin/stats/users?period=30d`
+
+**Headers:**
+```
+Authorization: Bearer {access_token}
+```
+
+**Query Parameters:**
+- `period` (optional): `7d` | `30d` | `90d` | `1y` (default: `30d`)
+
+**Response:**
+```json
+{
+  "period": "30d",
+  "totalUsers": 1250,
+  "newUsers": 150,
+  "activeUsers": 320,
+  "verifiedUsers": 1100,
+  "unverifiedUsers": 150,
+  "usersByRole": {
+    "admin": 3,
+    "user": 1247
+  },
+  "growthData": [
+    {
+      "date": "2025-10-15",
+      "count": 10
+    },
+    {
+      "date": "2025-10-16",
+      "count": 15
+    }
+  ]
+}
+```
+
+---
+
+### 4. GET `/api/admin/stats/content`
+Get content statistics
+
+**URL:** `http://localhost:8080/api/admin/stats/content`
+
+**Headers:**
+```
+Authorization: Bearer {access_token}
+```
+
+**Response:**
+```json
+{
+  "articles": {
+    "total": 450,
+    "published": 380,
+    "draft": 70,
+    "todayPublished": 8
+  },
+  "comments": {
+    "total": 2300,
+    "todayComments": 45
+  },
+  "tags": {
+    "total": 45,
+    "mostUsed": [
+      {
+        "name": "JavaScript",
+        "count": 120
+      },
+      {
+        "name": "React",
+        "count": 95
+      }
+    ]
+  }
+}
+```
+
+---
+
+### 5. GET `/api/admin/stats/engagement`
+Get engagement statistics
+
+**URL:** `http://localhost:8080/api/admin/stats/engagement`
+
+**Headers:**
+```
+Authorization: Bearer {access_token}
+```
+
+**Response:**
+```json
+{
+  "likes": {
+    "total": 5600,
+    "todayLikes": 120
+  },
+  "bookmarks": {
+    "total": 1200,
+    "todayBookmarks": 35
+  },
+  "views": {
+    "total": 45000,
+    "todayViews": 1200
+  }
+}
+```
+
+---
+
+### 6. GET `/api/admin/users`
+Get all users with filters (Admin view)
+
+**URL:** `http://localhost:8080/api/admin/users?page=0&size=20&role=user&status=verified&sortBy=createdAt`
+
+**Headers:**
+```
+Authorization: Bearer {access_token}
+```
+
+**Query Parameters:**
+- `page` (optional): Page number (default: 0)
+- `size` (optional): Page size (default: 20)
+- `role` (optional): Filter by role (`user` | `admin`)
+- `status` (optional): Filter by status (`verified` | `unverified`)
+- `sortBy` (optional): Sort field (`createdAt` | `reputation`)
+
+**Response:**
+```json
+{
+  "content": [
+    {
+      "uuid": "2233b235-784b-427e-bd10-65b524da6252",
+      "username": "johndoe",
+      "email": "john@example.com",
+      "role": "user",
+      "isVerified": true,
+      "isActive": true,
+      "reputation": 150,
+      "postsCount": 10,
+      "createdAt": "2025-10-01T10:00:00+07:00",
+      "lastLoginAt": "2025-11-11T14:30:00+07:00"
+    }
+  ],
+  "totalPages": 10,
+  "totalElements": 200,
+  "size": 20,
+  "number": 0
+}
+```
+
+---
+
+### 7. PUT `/api/admin/users/{userUuid}/role`
+Update user role
+
+**URL:** `http://localhost:8080/api/admin/users/2233b235-784b-427e-bd10-65b524da6252/role`
+
+**Headers:**
+```
+Authorization: Bearer {access_token}
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "role": "admin"
+}
+```
+
+**Response:**
+```json
+{
+  "message": "User role updated successfully",
+  "user": {
+    "uuid": "2233b235-784b-427e-bd10-65b524da6252",
+    "username": "johndoe",
+    "email": "john@example.com",
+    "role": "admin",
+    "isVerified": true,
+    "isActive": true,
+    "reputation": 150,
+    "postsCount": 10,
+    "createdAt": "2025-10-01T10:00:00+07:00",
+    "lastLoginAt": "2025-11-11T14:30:00+07:00"
+  }
+}
+```
+
+---
+
+### 8. POST `/api/admin/users/{userUuid}/ban`
+Ban a user
+
+**URL:** `http://localhost:8080/api/admin/users/2233b235-784b-427e-bd10-65b524da6252/ban`
+
+**Headers:**
+```
+Authorization: Bearer {access_token}
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "reason": "Spam content",
+  "duration": "7d"
+}
+```
+
+**Response:**
+```json
+{
+  "message": "User banned successfully"
+}
+```
+
+**Notes:**
+- Sets user's `isActive` to `false`
+- User cannot login while banned
+- Duration can be: `7d`, `30d`, `permanent`
+
+---
+
+### 9. POST `/api/admin/users/{userUuid}/unban`
+Unban a user
+
+**URL:** `http://localhost:8080/api/admin/users/2233b235-784b-427e-bd10-65b524da6252/unban`
+
+**Headers:**
+```
+Authorization: Bearer {access_token}
+```
+
+**Response:**
+```json
+{
+  "message": "User unbanned successfully"
+}
+```
+
+---
+
+### 10. DELETE `/api/admin/users/{userUuid}`
+Delete a user (Hard delete)
+
+**URL:** `http://localhost:8080/api/admin/users/2233b235-784b-427e-bd10-65b524da6252`
+
+**Headers:**
+```
+Authorization: Bearer {access_token}
+```
+
+**Response:**
+```json
+{
+  "message": "User deleted successfully"
+}
+```
+
+**Notes:**
+- Permanently deletes user and all associated data
+- Cannot delete admin users (returns 403)
+- Use with caution!
+
+---
+
+### 11. GET `/api/admin/articles`
+Get all articles (Admin view)
+
+**URL:** `http://localhost:8080/api/admin/articles?page=0&size=20&status=published&sortBy=views`
+
+**Headers:**
+```
+Authorization: Bearer {access_token}
+```
+
+**Query Parameters:**
+- `page` (optional): Page number (default: 0)
+- `size` (optional): Page size (default: 20)
+- `status` (optional): Filter by status (`published` | `draft` | `archived`)
+- `sortBy` (optional): Sort field (`createdAt` | `views`)
+
+**Response:**
+```json
+{
+  "content": [
+    {
+      "uuid": "e8e1e5b3-a5bb-49c5-8983-a446ffb9aa49",
+      "title": "Getting Started with Spring Boot",
+      "slug": "getting-started-with-spring-boot",
+      "author": {
+        "username": "johndoe",
+        "email": "john@example.com"
+      },
+      "status": "published",
+      "viewsCount": 1200,
+      "likesCount": 45,
+      "commentsCount": 12,
+      "createdAt": "2025-10-15T10:00:00+07:00",
+      "publishedAt": "2025-10-15T11:00:00+07:00"
+    }
+  ],
+  "totalPages": 20,
+  "totalElements": 400,
+  "size": 20,
+  "number": 0
+}
+```
+
+---
+
+### 12. DELETE `/api/admin/articles/{slug}`
+Delete an article (Admin)
+
+**URL:** `http://localhost:8080/api/admin/articles/getting-started-with-spring-boot`
+
+**Headers:**
+```
+Authorization: Bearer {access_token}
+```
+
+**Response:**
+```json
+{
+  "message": "Article deleted successfully"
+}
+```
+
+---
+
+### 13. PUT `/api/admin/articles/{slug}/status`
+Update article status (Admin)
+
+**URL:** `http://localhost:8080/api/admin/articles/getting-started-with-spring-boot/status`
+
+**Headers:**
+```
+Authorization: Bearer {access_token}
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "status": "published"
+}
+```
+
+**Response:**
+```json
+{
+  "message": "Article status updated"
+}
+```
+
+**Notes:**
+- Status values: `published` | `draft` | `archived`
+- Auto-sets `publishedAt` timestamp when changing to `published`
+
+---
+
+### 14. GET `/api/admin/comments`
+Get all comments (Admin view)
+
+**URL:** `http://localhost:8080/api/admin/comments?page=0&size=20`
+
+**Headers:**
+```
+Authorization: Bearer {access_token}
+```
+
+**Query Parameters:**
+- `page` (optional): Page number (default: 0)
+- `size` (optional): Page size (default: 20)
+- `flagged` (optional): Filter flagged comments (future feature)
+
+**Response:**
+```json
+{
+  "content": [
+    {
+      "id": 123,
+      "content": "Great article!",
+      "author": {
+        "username": "jane",
+        "uuid": "660e8400-e29b-41d4-a716-446655440001"
+      },
+      "postId": 1,
+      "postType": "article",
+      "createdAt": "2025-11-10T14:00:00+07:00",
+      "isFlagged": false
+    }
+  ],
+  "totalPages": 50,
+  "totalElements": 1000,
+  "size": 20,
+  "number": 0
+}
+```
+
+---
+
+### 15. DELETE `/api/admin/comments/{commentId}`
+Delete a comment (Admin)
+
+**URL:** `http://localhost:8080/api/admin/comments/123`
+
+**Headers:**
+```
+Authorization: Bearer {access_token}
+```
+
+**Response:**
+```json
+{
+  "message": "Comment deleted successfully"
+}
+```
+
+---
+
+### 16. GET `/api/admin/notifications/stats`
+Get notification statistics
+
+**URL:** `http://localhost:8080/api/admin/notifications/stats`
+
+**Headers:**
+```
+Authorization: Bearer {access_token}
+```
+
+**Response:**
+```json
+{
+  "totalSent": 5600,
+  "todaySent": 120,
+  "unreadCount": 2300,
+  "byType": {
+    "comment": 2000,
+    "vote": 1800,
+    "follow": 1200,
+    "mention": 600
+  }
+}
+```
+
+---
+
+## 📋 Admin API Summary
+
+### ✅ Implemented Admin Features:
+
+1. **Authentication**
+   - ✅ Admin verification endpoint
+
+2. **Platform Statistics**
+   - ✅ Overview stats (users, articles, comments, tags)
+   - ✅ User growth stats with time period
+   - ✅ Content stats (articles, comments, tags)
+   - ✅ Engagement stats (likes, bookmarks, views)
+
+3. **User Management**
+   - ✅ List all users with filters
+   - ✅ Update user role
+   - ✅ Ban/Unban users
+   - ✅ Delete users
+
+4. **Content Moderation**
+   - ✅ List all articles (admin view)
+   - ✅ Delete articles
+   - ✅ Update article status
+
+5. **Comment Moderation**
+   - ✅ List all comments
+   - ✅ Delete comments
+
+6. **Notification Stats**
+   - ✅ Get notification statistics
+
+---
+
+## 🔒 Admin Security Notes:
+- All admin endpoints protected by `@PreAuthorize("hasRole('ADMIN')")`
+- Returns 403 Forbidden if user is not admin
+- All admin actions are logged for audit trail
+- Admin users cannot be deleted
+- JWT token required for all requests
 
 ---
 

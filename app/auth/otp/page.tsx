@@ -188,7 +188,7 @@ export default function OTPPage() {
               </CardTitle>
               <CardDescription className="text-gray-600">
                 We've sent a verification code to<br />
-                <span className="font-medium text-gray-900">john@example.com</span>
+                <span className="font-medium text-gray-900">{email || 'your email'}</span>
               </CardDescription>
             </CardHeader>
 

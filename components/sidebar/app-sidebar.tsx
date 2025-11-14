@@ -20,6 +20,7 @@ import {
   Search,
   Code,
   Info,
+  Shield,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
@@ -116,6 +117,16 @@ const developerTools: NavItem[] = [
   },
 ];
 
+const adminTools: NavItem[] = [
+  {
+    id: "admin-dashboard",
+    label: "Dashboard",
+    href: "/admin",
+    icon: Shield,
+    description: "Admin overview"
+  },
+];
+
 export function AppSidebar() {
   const pathname = usePathname();
   const router = useRouter();
@@ -128,6 +139,9 @@ export function AppSidebar() {
     "/content/new", // Hide on create new article page
   ];
 
+  // Hide sidebar on admin pages
+  const isAdminPage = pathname.startsWith("/admin");
+
   // Hide sidebar on article detail pages (/content/[slug])
   const isArticleDetail = pathname.startsWith("/content/") && 
                           !pathname.includes("/content/tags") &&
@@ -135,7 +149,7 @@ export function AppSidebar() {
                           pathname !== "/content" &&
                           pathname !== "/content/new";
 
-  if (hiddenPaths.includes(pathname) || isArticleDetail) {
+  if (hiddenPaths.includes(pathname) || isArticleDetail || isAdminPage) {
     return null;
   }
 
@@ -251,6 +265,18 @@ export function AppSidebar() {
               </h3>
               <SidebarMenu className="space-y-2">
                 {personalSpace.map(renderNavItem)}
+              </SidebarMenu>
+            </div>
+          )}
+
+          {/* Admin Tools - Only show for admin users */}
+          {user && user.role === 'ADMIN' && (
+            <div>
+              <h3 className="text-xs font-bold text-red-600 uppercase tracking-wider mb-6 px-2">
+                Admin
+              </h3>
+              <SidebarMenu className="space-y-2">
+                {adminTools.map(renderNavItem)}
               </SidebarMenu>
             </div>
           )}

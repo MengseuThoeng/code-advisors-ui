@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Search, User, LogOut, Settings, Bell, PenSquare } from "lucide-react";
+import { Search, User, LogOut, Settings, Bell, PenSquare, Shield } from "lucide-react";
 import { useAuth, useLogout } from "@/hooks/use-auth";
 import { DEFAULT_AVATAR } from "@/lib/constants";
 import {
@@ -24,6 +24,12 @@ export default function NavbarComponent() {
     const { user, isLoading, isAuthenticated } = useAuth();
     const logoutMutation = useLogout();
     const router = useRouter();
+    const pathname = usePathname();
+
+    // Hide navbar on admin pages
+    if (pathname.startsWith('/admin')) {
+        return null;
+    }
 
     // Avoid hydration mismatch
     useEffect(() => {
@@ -152,6 +158,20 @@ export default function NavbarComponent() {
                                     </div>
                                 </DropdownMenuLabel>
                                 <DropdownMenuSeparator />
+                                
+                                {/* Admin Dashboard Link - Only for ADMIN users */}
+                                {(user.role?.toUpperCase() === 'ADMIN' || user.role === 'ADMIN') && (
+                                    <>
+                                        <DropdownMenuItem asChild>
+                                            <Link href="/admin" className="cursor-pointer text-red-600 font-semibold">
+                                                <Shield className="mr-2 h-4 w-4" />
+                                                <span>Admin Dashboard</span>
+                                            </Link>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuSeparator />
+                                    </>
+                                )}
+                                
                                 <DropdownMenuItem asChild>
                                     <Link href={`/user/${user.username}`} className="cursor-pointer">
                                         <User className="mr-2 h-4 w-4" />
