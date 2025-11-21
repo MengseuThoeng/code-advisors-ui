@@ -62,8 +62,9 @@ const mainNavigation: NavItem[] = [
   },
   {
     id: "discussions",
-    label: "Forum", 
-    href: "/forum",
+    // Forum - Hidden (Coming Soon)
+    // label: "Forum", 
+    // href: "/forum",
     icon: MessageSquare,
     description: "Join discussions"
   },

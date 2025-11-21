@@ -328,8 +328,8 @@ export default function UserProfile() {
                 </CardContent>
               </Card>
 
-              {/* Achievements Card */}
-              <Card>
+              {/* Hidden - Achievements Card (Coming Soon) */}
+              {/* <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
                     <Award className="w-5 h-5 text-primary" />
@@ -338,7 +338,6 @@ export default function UserProfile() {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 gap-3">
-                    {/* Placeholder achievements - replace with real data when backend supports it */}
                     <div className="p-3 rounded-lg border text-center bg-gray-50 border-gray-200">
                       <div className="text-2xl mb-1">🏆</div>
                       <div className="text-xs font-medium text-gray-700">Coming Soon</div>
@@ -349,7 +348,7 @@ export default function UserProfile() {
                     </div>
                   </div>
                 </CardContent>
-              </Card>
+              </Card> */
 
               {/* Activity Stats */}
               <Card>

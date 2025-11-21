@@ -253,7 +253,7 @@ export function AppSidebar() {
               Explore
             </h3>
             <SidebarMenu className="space-y-2">
-              {mainNavigation.map(renderNavItem)}
+              {mainNavigation.filter(item => !item.comingSoon).map(renderNavItem)}
             </SidebarMenu>
           </div>
 
@@ -264,7 +264,7 @@ export function AppSidebar() {
                 Your Space
               </h3>
               <SidebarMenu className="space-y-2">
-                {personalSpace.map(renderNavItem)}
+                {personalSpace.filter(item => !item.comingSoon).map(renderNavItem)}
               </SidebarMenu>
             </div>
           )}
@@ -275,9 +275,9 @@ export function AppSidebar() {
               <h3 className="text-xs font-bold text-red-600 uppercase tracking-wider mb-6 px-2">
                 Admin
               </h3>
-              <SidebarMenu className="space-y-2">
-                {adminTools.map(renderNavItem)}
-              </SidebarMenu>
+                <SidebarMenu className="space-y-2">
+                  {adminTools.filter(item => !item.comingSoon).map(renderNavItem)}
+                </SidebarMenu>
             </div>
           )}
 
@@ -287,7 +287,7 @@ export function AppSidebar() {
               Developer
             </h3>
             <SidebarMenu className="space-y-2">
-              {developerTools.map(renderNavItem)}
+              {developerTools.filter(item => !item.comingSoon).map(renderNavItem)}
             </SidebarMenu>
           </div>
         </SidebarContent>

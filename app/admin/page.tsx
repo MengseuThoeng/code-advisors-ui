@@ -163,7 +163,8 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
         
-        <Card className="cursor-pointer hover:shadow-lg transition-shadow opacity-50">
+        {/* Hidden - Coming Soon Features */}
+        {/* <Card className="cursor-pointer hover:shadow-lg transition-shadow opacity-50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-base font-medium">Content Moderation</CardTitle>
             <FileText className="h-5 w-5 text-green-600" />
@@ -191,7 +192,7 @@ export default function AdminDashboard() {
               Coming Soon
             </Button>
           </CardContent>
-        </Card>
+        </Card> */
       </div>
 
       {/* Today's Activity Section */}
