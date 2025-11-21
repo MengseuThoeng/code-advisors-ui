@@ -328,28 +328,7 @@ export default function UserProfile() {
                 </CardContent>
               </Card>
 
-              {/* Hidden - Achievements Card (Coming Soon) */}
-              {/* <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <Award className="w-5 h-5 text-primary" />
-                    <span>Achievements</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="p-3 rounded-lg border text-center bg-gray-50 border-gray-200">
-                      <div className="text-2xl mb-1">🏆</div>
-                      <div className="text-xs font-medium text-gray-700">Coming Soon</div>
-                    </div>
-                    <div className="p-3 rounded-lg border text-center bg-gray-50 border-gray-200">
-                      <div className="text-2xl mb-1">⭐</div>
-                      <div className="text-xs font-medium text-gray-700">Coming Soon</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card> */
-
+              
               {/* Activity Stats */}
               <Card>
                 <CardHeader>
